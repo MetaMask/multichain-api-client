@@ -1,0 +1,32 @@
+{
+  "name": "multichain-api-client",
+  "type": "module",
+  "version": "0.0.0",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "description": "",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
+  },
+  "scripts": {
+    "build:minify": "bun run build.ts --minify",
+    "build": "bun run build.ts",
+    "prepublishOnly": "bun run build",
+    "format:fix": "biome format --write",
+    "lint:fix": "biome check --fix"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@metamask/utils": "^11.2.0",
+    "@types/bun": "^1.1.10",
+    "@types/chrome": "^0.0.307",
+    "bun-plugin-dts": "^0.3.0"
+  }
+}
