@@ -1,27 +1,72 @@
-import { detectMetaMaskExtensionId } from '../helpers/misc';
+import { isNullOrUndefined } from '@metamask/utils';
+import { detectMetamaskExtensionId } from '../helpers/misc';
 import type { Transport } from '../types';
 
 export function getExternallyConnectableTransport(): Transport {
   let chromePort: chrome.runtime.Port | null;
   let extensionId: string | undefined;
+  let requestId = 0;
+  /**
+   * Storing notification callbacks.
+   * If we detect a "notification" (a message without an id) coming from the extension or fallback, we'll call each callback in here.
+   */
+  const notificationCallbacks: Set<(data: unknown) => void> = new Set();
+
+  /**
+   * If we get a message on the chrome port that doesn't have an ID,
+   * treat it as a notification or subscription update.
+   *
+   * @param msg
+   */
+  function handleChromeMessage(msg: any) {
+    if (isNullOrUndefined(msg?.data?.id)) {
+      // should be handled in requestViaChrome listener - skipping
+    } else {
+      // No id => notification
+      console.debug('[ChromeTransport] chrome notification:', msg);
+      notifyCallbacks(msg.data);
+    }
+  }
+
+  /**
+   * Fire our local notification callbacks
+   */
+  function notifyCallbacks(data: unknown) {
+    for (const cb of notificationCallbacks) {
+      try {
+        cb(data);
+      } catch (err) {
+        console.error('[ExtensionProvider] Error in notification callback:', err);
+      }
+    }
+  }
+
+  /* function removeNotificationListener(callback: (data: unknown) => void): void {
+    console.debug('[ExtensionProvider] Removing notification listener');
+    notificationCallbacks.delete(callback);
+  } */
+
+  function removeAllNotificationListeners(): void {
+    console.debug('[ExtensionProvider] Removing all notification listeners');
+    notificationCallbacks.clear();
+  }
 
   return {
     connect: async () => {
       try {
-        extensionId = await detectMetaMaskExtensionId();
+        extensionId = await detectMetamaskExtensionId();
 
         if (!extensionId) {
-          console.error('[ExtensionProvider] no extensionId found');
+          console.error('[ChromeTransport] MetaMask extension not found');
           return false;
         }
 
-        console.debug('[ExtensionProvider] connecting via chrome...');
         chromePort = chrome.runtime.connect(extensionId);
 
         let isActive = true;
         chromePort.onDisconnect.addListener(() => {
           isActive = false;
-          console.error('[ExtensionProvider] chrome runtime disconnected');
+          console.warn('[ChromeTransport] chrome runtime disconnected');
           chromePort = null;
         });
 
@@ -33,37 +78,70 @@ export function getExternallyConnectableTransport(): Transport {
 
         // Listen to messages from the extension
         chromePort.onMessage.addListener(handleChromeMessage);
-        // do a test message if needed
-        chromePort.postMessage({ type: 'ping' });
 
         return true;
       } catch (err) {
-        console.error('[ExtensionProvider] connectChrome error:', err);
+        console.error('[ChromeTransport] connectChrome error:', err);
         return false;
       }
     },
-    disconnect: () => {
-      return new Promise((resolve) => resolve());
+    disconnect: async () => {
+      if (chromePort) {
+        try {
+          chromePort.disconnect();
+          chromePort = null;
+          removeAllNotificationListeners();
+        } catch (err) {
+          console.error('[ChromeTransport] Error disconnecting chrome port:', err);
+        }
+      }
     },
-    request: (_data: any) => {
-      return new Promise((resolve) => resolve({}));
-    },
-    onNotification: (_callback: (data: any) => void) => {},
-  };
-}
+    request: ({ method, params }) => {
+      const currentChromePort = chromePort;
+      if (!currentChromePort) {
+        throw new Error('Chrome port not connected');
+      }
+      const id = requestId++;
+      const requestPayload = {
+        id,
+        jsonrpc: '2.0',
+        method,
+        params,
+      };
 
-/**
- * If we get a message on the chrome port that doesn't have an ID,
- * treat it as a notification or subscription update.
- *
- * @param msg
- */
-function handleChromeMessage(msg: any) {
-  if (msg?.data?.id) {
-    // should be handled in requestViaChrome listener - skipping
-  } else {
-    // No id => notification
-    console.debug('[ExtensionProvider] chrome notification:', msg);
-    // notifyCallbacks(msg.data); // TODO: implement
-  }
+      return new Promise((resolve, reject) => {
+        const handleMessage = (msg: any) => {
+          // Check if the message matches our request ID
+          if (msg?.data?.id === id) {
+            currentChromePort?.onMessage.removeListener(handleMessage);
+            // Check for error or result
+            if (msg.data.error) {
+              reject(new Error(msg.data.error.message));
+            } else {
+              resolve(msg.data.result);
+            }
+          } else if (!msg?.data?.id) {
+            // This is presumably a notification
+            console.debug('[ExtensionProvider] notification from chrome:', msg.data);
+            notifyCallbacks(msg.data);
+          }
+        };
+
+        currentChromePort.onMessage.addListener(handleMessage);
+
+        // Send it
+        currentChromePort.postMessage({ type: 'caip-x', data: requestPayload });
+
+        // optional timeout
+        setTimeout(() => {
+          currentChromePort?.onMessage.removeListener(handleMessage);
+          reject(new Error('request timeout'));
+        }, 30000);
+      });
+    },
+    onNotification: (callback: (data: unknown) => void) => {
+      console.log('[ChromeTransport] Adding notification listener');
+      notificationCallbacks.add(callback);
+    },
+  };
 }

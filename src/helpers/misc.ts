@@ -10,11 +10,11 @@ export const isChromeRuntime = (): boolean => {
 /**
  * Automatically detects MetaMask extension ID if available
  */
-export const detectMetaMaskExtensionId = async (): Promise<string | undefined> => {
+export const detectMetamaskExtensionId = async (): Promise<string | undefined> => {
   try {
     const wallets = await discoverWallets({
       timeout: 1000,
-      filterPredicate: walletFilters.isMetaMask,
+      filterPredicate: walletFilters.isMetamask,
     });
 
     return wallets[0]?.providerId;

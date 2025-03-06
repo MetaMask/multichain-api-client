@@ -66,7 +66,7 @@ export function discoverWallets(options: WalletDiscoveryOptions = {}): Promise<W
 
 // Utility functions for common filtering scenarios
 export const walletFilters = {
-  isMetaMask: (wallet: WalletInfo) => wallet.name.toLowerCase().includes('metamask'),
+  isMetamask: (wallet: WalletInfo) => wallet.name.toLowerCase().includes('metamask'),
 
   byName: (name: string) => (wallet: WalletInfo) => wallet.name.toLowerCase().includes(name.toLowerCase()),
 
