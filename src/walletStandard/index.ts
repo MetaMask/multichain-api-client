@@ -30,7 +30,7 @@ import {
   type StandardEventsOnMethod,
 } from '@wallet-standard/features';
 import { ReadonlyWalletAccount } from '@wallet-standard/wallet';
-import type { MultichainClient } from '../types';
+import type { MultichainClient, SessionData } from '../types';
 import { metamaskIcon } from './icon';
 
 export class MetamaskWalletAccount extends ReadonlyWalletAccount {
@@ -124,17 +124,24 @@ export class MetamaskWallet implements Wallet {
 
   #connect = async () => {
     if (!this.accounts.length) {
-      const session = await this.client.createSession({
-        optionalScopes: {
-          [this.scope]: {
-            methods: ['getGenesisHash', 'signMessage'],
-            notifications: ['accountsChanged', 'chainChanged'],
-            accounts: [`${this.scope}:6AwJL1LnMjwsB8GkJCPexEwznnhpiMV4DHv8QsRLtnNc`], // TODO: Remove hardcoded account when account selection UI is ready
-          },
-        },
-      });
+      const existingSession = await this.client.getSession();
+      let session: SessionData | undefined = existingSession;
 
-      const accounts = session.sessionScopes[this.scope].accounts;
+      // If there's no existing accounts for this session scope, create a new one
+      if (!existingSession?.sessionScopes[this.scope]?.accounts?.length) {
+        // No existing session found, create a new one
+        session = await this.client.createSession({
+          optionalScopes: {
+            [this.scope]: {
+              methods: ['getGenesisHash', 'signMessage'],
+              notifications: ['accountsChanged'],
+              accounts: [`${this.scope}:6AwJL1LnMjwsB8GkJCPexEwznnhpiMV4DHv8QsRLtnNc`], // TODO: Remove hardcoded account when account selection UI is ready
+            },
+          },
+        });
+      }
+
+      const accounts = session?.sessionScopes[this.scope].accounts;
 
       if (!accounts?.length) {
         throw new Error('No accounts found in MetaMask session');

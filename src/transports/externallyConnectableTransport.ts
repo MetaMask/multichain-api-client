@@ -2,9 +2,9 @@ import { isNullOrUndefined } from '@metamask/utils';
 import { detectMetamaskExtensionId } from '../helpers/misc';
 import type { Transport } from '../types';
 
-export function getExternallyConnectableTransport(): Transport {
-  let chromePort: chrome.runtime.Port | null;
-  let extensionId: string | undefined;
+export function getExternallyConnectableTransport(params: { extensionId?: string }): Transport {
+  let { extensionId } = params;
+  let chromePort: chrome.runtime.Port | undefined;
   let requestId = 0;
   /**
    * Storing notification callbacks.
@@ -20,12 +20,11 @@ export function getExternallyConnectableTransport(): Transport {
    */
   function handleChromeMessage(msg: any) {
     if (isNullOrUndefined(msg?.data?.id)) {
-      // should be handled in requestViaChrome listener - skipping
-    } else {
       // No id => notification
       console.debug('[ChromeTransport] chrome notification:', msg);
       notifyCallbacks(msg.data);
     }
+    // otherwise should be handled in requestViaChrome listener - skipping
   }
 
   /**
@@ -54,7 +53,9 @@ export function getExternallyConnectableTransport(): Transport {
   return {
     connect: async () => {
       try {
-        extensionId = await detectMetamaskExtensionId();
+        if (!extensionId) {
+          extensionId = await detectMetamaskExtensionId();
+        }
 
         if (!extensionId) {
           console.error('[ChromeTransport] MetaMask extension not found');
@@ -67,7 +68,7 @@ export function getExternallyConnectableTransport(): Transport {
         chromePort.onDisconnect.addListener(() => {
           isActive = false;
           console.warn('[ChromeTransport] chrome runtime disconnected');
-          chromePort = null;
+          chromePort = undefined;
         });
 
         // let a tick for onDisconnect
@@ -89,14 +90,15 @@ export function getExternallyConnectableTransport(): Transport {
       if (chromePort) {
         try {
           chromePort.disconnect();
-          chromePort = null;
+          chromePort = undefined;
           removeAllNotificationListeners();
         } catch (err) {
           console.error('[ChromeTransport] Error disconnecting chrome port:', err);
         }
       }
     },
-    request: ({ method, params }) => {
+    isConnected: () => chromePort !== undefined,
+    request: ({ method, params = {} }) => {
       const currentChromePort = chromePort;
       if (!currentChromePort) {
         throw new Error('Chrome port not connected');

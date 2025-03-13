@@ -3,12 +3,14 @@ import type { CaipAccountId, CaipChainId, Json } from '@metamask/utils';
 export interface Transport {
   connect: () => Promise<boolean>;
   disconnect: () => Promise<void>;
+  isConnected: () => boolean;
   request: ({ method, params }: { method: string; params?: Json }) => Promise<Json>;
   onNotification: (callback: (data: unknown) => void) => void;
 }
 
 export interface MultichainClient {
   createSession: (params: CreateSessionParams) => Promise<SessionData>;
+  getSession: () => Promise<SessionData | undefined>;
   revokeSession: () => Promise<void>;
   invokeMethod: ({
     scope,

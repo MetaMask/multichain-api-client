@@ -28,3 +28,5 @@ await Promise.all([
     minify,
   }),
 ]);
+
+console.info(`[${new Date().toLocaleTimeString()}] Build complete to ${outdir}`);
