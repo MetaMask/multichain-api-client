@@ -3,7 +3,7 @@ import type { CaipAccountId, CaipChainId, Json } from '@metamask/utils';
 export interface Transport {
   connect: () => Promise<boolean>;
   disconnect: () => Promise<void>;
-  request: ({ method, params }: { method: string; params: Json }) => Promise<Json>;
+  request: ({ method, params }: { method: string; params?: Json }) => Promise<Json>;
   onNotification: (callback: (data: unknown) => void) => void;
 }
 

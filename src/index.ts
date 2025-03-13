@@ -19,7 +19,7 @@ export function getMultichainClient({ transport }: { transport: Transport }): Mu
       return session;
     },
     revokeSession: async () => {
-      await transport.request({ method: 'revokeSession', params: {} });
+      await transport.request({ method: 'revokeSession' });
       await transport.disconnect();
     },
     invokeMethod: async ({ scope, request }): Promise<Json> => {
