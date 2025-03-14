@@ -1,36 +1,25 @@
-import type { Json } from '@metamask/utils';
-import { isChromeRuntime } from './helpers/misc';
+import { registerWallet } from '@wallet-standard/wallet';
+import { isChromeRuntime } from './helpers/utils';
+import { getMultichainClient } from './multichainClient';
 import { getExternallyConnectableTransport } from './transports/externallyConnectableTransport';
-import type { CreateSessionParams, MultichainClient, Transport } from './types';
+import type { MultichainClient, Transport } from './types';
+import { MetamaskWallet } from './walletStandard';
 
-export function getMultichainClient({ transport }: { transport: Transport }): MultichainClient {
-  return {
-    createSession: async (params: CreateSessionParams) => {
-      await transport.connect();
-      await transport.request({ method: 'wallet_createSession', params: params as Json });
-    },
-    revokeSession: async () => {
-      await transport.request({ method: 'revokeSession', params: {} });
-      await transport.disconnect();
-    },
-    invokeMethod: async ({ scope, request }): Promise<Json> => {
-      return transport.request({ method: 'wallet_invokeMethod', params: { scope, request } });
-    },
-  };
-}
-
-export function getDefaultTransport(): Transport {
+function getDefaultTransport(params: { extensionId?: string }): Transport {
   const isChrome = isChromeRuntime();
-  return isChrome ? getExternallyConnectableTransport() : ({} as Transport); // TODO: Implement stream transport
+  return isChrome ? getExternallyConnectableTransport(params) : ({} as Transport); // TODO: Implement stream transport
 }
 
-function getWalletStandard({ client: _client }: { client: MultichainClient }) {
-  return {};
+function getWalletStandard({ client }: { client: MultichainClient }) {
+  return new MetamaskWallet({ client });
 }
 
-// TODO: Move to injected script
-const client = getMultichainClient({ transport: getDefaultTransport() });
+async function registerSolanaWalletStandard(params: { extensionId?: string }) {
+  const client = await getMultichainClient({ transport: getDefaultTransport(params) });
 
-/* const wallet =  */ getWalletStandard({ client });
+  const wallet = getWalletStandard({ client });
 
-// register(wallet);
+  registerWallet(wallet);
+}
+
+export { registerWallet, getMultichainClient, getDefaultTransport, getWalletStandard, registerSolanaWalletStandard };

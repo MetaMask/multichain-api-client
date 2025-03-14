@@ -3,17 +3,19 @@ import type { CaipAccountId, CaipChainId, Json } from '@metamask/utils';
 export interface Transport {
   connect: () => Promise<boolean>;
   disconnect: () => Promise<void>;
-  request: ({ method, params }: { method: string; params: Json }) => Promise<Json>;
+  isConnected: () => boolean;
+  request: ({ method, params }: { method: string; params?: Json }) => Promise<Json>;
   onNotification: (callback: (data: unknown) => void) => void;
 }
 
 export interface MultichainClient {
-  createSession: (params: CreateSessionParams) => Promise<void>;
+  createSession: (params: CreateSessionParams) => Promise<SessionData>;
+  getSession: () => Promise<SessionData | undefined>;
   revokeSession: () => Promise<void>;
   invokeMethod: ({
     scope,
     request,
-  }: { scope: CaipChainId; request: { method: string; params: Json[] } }) => Promise<Json>;
+  }: { scope: CaipChainId; request: { method: string; params: Json } }) => Promise<Json>;
 }
 
 /**
@@ -54,4 +56,25 @@ export interface CreateSessionParams {
   optionalScopes?: Record<string, ScopeObject>;
   //   scopedProperties?: ScopedProperties;
   //   sessionProperties?: SessionProperties;
+}
+
+/**
+ * Comprehensive session data including scopes and properties.
+ * Represents a tracked session in local store.
+ */
+export interface SessionData {
+  /** CAIP-171 compliant session identifier (not used in MetaMask) */
+  sessionId?: string;
+
+  /** Map of chain IDs to their respective scope objects */
+  sessionScopes: Record<CaipChainId, ScopeObject>;
+
+  /** Chain-specific properties (not implemented in MetaMask yet) */
+  scopedProperties?: ScopedProperties;
+
+  /** Session-wide properties (not implemented in MetaMask yet) */
+  sessionProperties?: SessionProperties;
+
+  /** ISO timestamp when the session expires (not implemented in MetaMask yet) */
+  expiry?: string;
 }
