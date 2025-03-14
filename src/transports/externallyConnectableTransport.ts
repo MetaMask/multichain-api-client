@@ -1,6 +1,6 @@
 import { isNullOrUndefined } from '@metamask/utils';
 import { detectMetamaskExtensionIdOnInit } from '../helpers/metamaskExtensionId';
-import type { Transport } from '../types';
+import type { Transport } from '../types/client';
 
 export function getExternallyConnectableTransport(params: { extensionId?: string }): Transport {
   let { extensionId } = params;

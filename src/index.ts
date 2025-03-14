@@ -2,7 +2,7 @@ import { registerWallet } from '@wallet-standard/wallet';
 import { isChromeRuntime } from './helpers/utils';
 import { getMultichainClient } from './multichainClient';
 import { getExternallyConnectableTransport } from './transports/externallyConnectableTransport';
-import type { MultichainClient, Transport } from './types';
+import type { MultichainApiClient, Transport } from './types/client';
 import { MetamaskWallet } from './walletStandard';
 
 function getDefaultTransport(params: { extensionId?: string }): Transport {
@@ -10,7 +10,7 @@ function getDefaultTransport(params: { extensionId?: string }): Transport {
   return isChrome ? getExternallyConnectableTransport(params) : ({} as Transport); // TODO: Implement stream transport
 }
 
-function getWalletStandard({ client }: { client: MultichainClient }) {
+function getWalletStandard({ client }: { client: MultichainApiClient }) {
   return new MetamaskWallet({ client });
 }
 

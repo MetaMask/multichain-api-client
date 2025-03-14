@@ -1,4 +1,4 @@
-import type { CaipChainId } from '@metamask/utils';
+import type { CaipAccountId } from '@metamask/utils';
 import {
   SOLANA_DEVNET_CHAIN,
   SOLANA_MAINNET_CHAIN,
@@ -30,7 +30,8 @@ import {
   type StandardEventsOnMethod,
 } from '@wallet-standard/features';
 import { ReadonlyWalletAccount } from '@wallet-standard/wallet';
-import type { MultichainClient, SessionData } from '../types';
+import type { MultichainApiClient } from '../types/client';
+import type { SessionData } from '../types/session';
 import { metamaskIcon } from './icon';
 
 export class MetamaskWalletAccount extends ReadonlyWalletAccount {
@@ -54,10 +55,10 @@ export class MetamaskWallet implements Wallet {
   readonly name = 'MetaMask (Injected pkg)' as const;
   readonly icon = metamaskIcon;
   readonly chains: SolanaChain[] = [SOLANA_MAINNET_CHAIN, SOLANA_DEVNET_CHAIN, SOLANA_TESTNET_CHAIN];
-  readonly scope: CaipChainId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp';
+  readonly scope = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp';
   #account: MetamaskWalletAccount | undefined;
 
-  client: MultichainClient;
+  client: MultichainApiClient;
 
   get accounts() {
     return this.#account ? [this.#account] : [];
@@ -99,7 +100,7 @@ export class MetamaskWallet implements Wallet {
     };
   }
 
-  constructor({ client }: { client: MultichainClient }) {
+  constructor({ client }: { client: MultichainApiClient }) {
     this.client = client;
   }
 
@@ -125,21 +126,18 @@ export class MetamaskWallet implements Wallet {
   #connect = async () => {
     if (!this.accounts.length) {
       const existingSession = await this.client.getSession();
-      let session: SessionData | undefined = existingSession;
-
       // If there's no existing accounts for this session scope, create a new one
-      if (!existingSession?.sessionScopes[this.scope]?.accounts?.length) {
-        // No existing session found, create a new one
-        session = await this.client.createSession({
-          optionalScopes: {
-            [this.scope]: {
-              methods: ['getGenesisHash', 'signMessage'],
-              notifications: ['accountsChanged'],
-              accounts: [`${this.scope}:6AwJL1LnMjwsB8GkJCPexEwznnhpiMV4DHv8QsRLtnNc`], // TODO: Remove hardcoded account when account selection UI is ready
+      const session: SessionData | undefined = existingSession?.sessionScopes[this.scope]?.accounts?.length
+        ? existingSession
+        : await this.client.createSession({
+            optionalScopes: {
+              [this.scope]: {
+                methods: ['getGenesisHash', 'signMessage'],
+                notifications: ['accountsChanged'],
+                accounts: [`${this.scope}:6AwJL1LnMjwsB8GkJCPexEwznnhpiMV4DHv8QsRLtnNc`] as CaipAccountId[],
+              },
             },
-          },
-        });
-      }
+          });
 
       const accounts = session?.sessionScopes[this.scope].accounts;
 
@@ -180,6 +178,8 @@ export class MetamaskWallet implements Wallet {
         method: 'signAndSendTransaction',
         params: {
           account: { address: this.#account.address },
+          transaction: '',
+          scope: this.scope,
         },
       },
     });

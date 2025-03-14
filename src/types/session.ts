@@ -1,22 +1,5 @@
 import type { CaipAccountId, CaipChainId, Json } from '@metamask/utils';
-
-export interface Transport {
-  connect: () => Promise<boolean>;
-  disconnect: () => Promise<void>;
-  isConnected: () => boolean;
-  request: ({ method, params }: { method: string; params?: Json }) => Promise<Json>;
-  onNotification: (callback: (data: unknown) => void) => void;
-}
-
-export interface MultichainClient {
-  createSession: (params: CreateSessionParams) => Promise<SessionData>;
-  getSession: () => Promise<SessionData | undefined>;
-  revokeSession: () => Promise<void>;
-  invokeMethod: ({
-    scope,
-    request,
-  }: { scope: CaipChainId; request: { method: string; params: Json } }) => Promise<Json>;
-}
+import type { RpcApi, Scope } from './rpc';
 
 /**
  * Represents a scope object as defined in CAIP-217.
@@ -51,13 +34,6 @@ export interface SessionProperties {
   [key: string]: Json;
 }
 
-export interface CreateSessionParams {
-  requiredScopes?: Record<string, ScopeObject>;
-  optionalScopes?: Record<string, ScopeObject>;
-  //   scopedProperties?: ScopedProperties;
-  //   sessionProperties?: SessionProperties;
-}
-
 /**
  * Comprehensive session data including scopes and properties.
  * Represents a tracked session in local store.
@@ -77,4 +53,10 @@ export interface SessionData {
 
   /** ISO timestamp when the session expires (not implemented in MetaMask yet) */
   expiry?: string;
+}
+
+// Create Session Params
+export interface CreateSessionParams<T extends RpcApi> {
+  requiredScopes?: Record<Scope<T>, ScopeObject>;
+  optionalScopes?: Record<Scope<T>, ScopeObject>;
 }
