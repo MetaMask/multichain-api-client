@@ -1,5 +1,5 @@
 import { isNullOrUndefined } from '@metamask/utils';
-import { detectMetamaskExtensionId } from '../helpers/misc';
+import { detectMetamaskExtensionIdOnInit } from '../helpers/metamaskExtensionId';
 import type { Transport } from '../types';
 
 export function getExternallyConnectableTransport(params: { extensionId?: string }): Transport {
@@ -54,7 +54,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
     connect: async () => {
       try {
         if (!extensionId) {
-          extensionId = await detectMetamaskExtensionId();
+          extensionId = await detectMetamaskExtensionIdOnInit();
         }
 
         if (!extensionId) {
