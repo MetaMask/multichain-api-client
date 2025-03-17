@@ -1,5 +1,5 @@
-import type { Eip155Rpc } from './scopes/eip155.types';
-import type { SolanaRpc } from './scopes/solana.types';
+import type { Eip155Rpc } from './eip155.types';
+import type { SolanaRpc } from './solana.types';
 
 export type RpcApi = Record<
   string,

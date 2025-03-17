@@ -1,6 +1,7 @@
-import type { InvokeMethodParams, MultichainApiClient, Transport } from './types/client';
-import type { DefaultRpcApi, MethodName, MethodReturn, RpcApi, Scope } from './types/rpc';
-import type { CreateSessionParams, SessionData } from './types/session';
+import type { CreateSessionParams, InvokeMethodParams, MultichainApiClient } from './types/multichainApi';
+import type { DefaultRpcApi, MethodName, MethodReturn, RpcApi, Scope } from './types/scopes';
+import type { SessionData } from './types/session';
+import type { Transport } from './types/transport';
 
 export async function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
   transport,

@@ -1,4 +1,4 @@
-import type { RpcMethod } from '../rpc';
+import type { RpcMethod } from '.';
 
 export type Commitment = 'processed' | 'confirmed' | 'finalized';
 

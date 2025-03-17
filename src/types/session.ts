@@ -1,5 +1,4 @@
 import type { CaipAccountId, CaipChainId, Json } from '@metamask/utils';
-import type { RpcApi, Scope } from './rpc';
 
 /**
  * Represents a scope object as defined in CAIP-217.
@@ -8,13 +7,10 @@ import type { RpcApi, Scope } from './rpc';
 export interface ScopeObject {
   /** List of external references or resources this scope can access */
   references?: string[];
-
   /** List of JSON-RPC methods this scope can invoke */
   methods?: string[];
-
   /** List of notification types this scope can receive */
   notifications?: string[];
-
   /** List of CAIP-10 account identifiers this scope has access to */
   accounts?: CaipAccountId[];
 }
@@ -41,22 +37,12 @@ export interface SessionProperties {
 export interface SessionData {
   /** CAIP-171 compliant session identifier (not used in MetaMask) */
   sessionId?: string;
-
   /** Map of chain IDs to their respective scope objects */
   sessionScopes: Record<CaipChainId, ScopeObject>;
-
   /** Chain-specific properties (not implemented in MetaMask yet) */
   scopedProperties?: ScopedProperties;
-
   /** Session-wide properties (not implemented in MetaMask yet) */
   sessionProperties?: SessionProperties;
-
   /** ISO timestamp when the session expires (not implemented in MetaMask yet) */
   expiry?: string;
-}
-
-// Create Session Params
-export interface CreateSessionParams<T extends RpcApi> {
-  requiredScopes?: Record<Scope<T>, ScopeObject>;
-  optionalScopes?: Record<Scope<T>, ScopeObject>;
 }

@@ -30,7 +30,7 @@ import {
   type StandardEventsOnMethod,
 } from '@wallet-standard/features';
 import { ReadonlyWalletAccount } from '@wallet-standard/wallet';
-import type { MultichainApiClient } from '../types/client';
+import type { MultichainApiClient } from '../types/multichainApi';
 import type { SessionData } from '../types/session';
 import { metamaskIcon } from './icon';
 
@@ -163,7 +163,7 @@ export class MetamaskWallet implements Wallet {
 
   #disconnect = async () => {
     this.#account = undefined;
-    await this.client.revokeSession();
+    await this.client.revokeSession(); // TODO: remove only the solana scope from the session
   };
 
   #signAndSendTransaction = async (...inputs: any): Promise<SolanaSignAndSendTransactionOutput[]> => {
