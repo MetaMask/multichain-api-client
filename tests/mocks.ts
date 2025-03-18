@@ -1,8 +1,8 @@
 import { mock } from 'bun:test';
-import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from '../types/multichainApi';
-import type { DefaultRpcApi, Scope } from '../types/scopes';
-import type { ScopeObject, SessionData } from '../types/session';
-import type { Transport } from '../types/transport';
+import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from '../src/types/multichainApi';
+import type { DefaultRpcApi, Scope } from '../src/types/scopes';
+import type { ScopeObject, SessionData } from '../src/types/session';
+import type { Transport } from '../src/types/transport';
 
 const SOLANA_MAINNET = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpK' as const;
 const MOCK_ACCOUNT = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpK:6AwJL1LnMjwsB8GkJCPexEwznnhpiMV4DHv8QsRLtnNc' as const;

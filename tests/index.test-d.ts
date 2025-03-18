@@ -1,5 +1,5 @@
 import { expectError, expectType } from 'tsd';
-import { getMultichainClient } from '../index';
+import { getMultichainClient } from '../src/index';
 import { getMockTransport } from './mocks';
 
 const client = await getMultichainClient({ transport: getMockTransport() });
