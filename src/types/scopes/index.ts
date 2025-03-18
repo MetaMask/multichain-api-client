@@ -24,8 +24,8 @@ export type MethodName<T extends RpcApi, S extends Scope<T>> = keyof T[BaseScope
 export type MethodParams<T extends RpcApi, S extends Scope<T>, M extends MethodName<T, S>> = Parameters<
   T[BaseScopeFromFull<T, S>]['methods'][M]
 >[0];
-export type MethodReturn<T extends RpcApi, S extends Scope<T>, M extends MethodName<T, S>> = ReturnType<
-  T[BaseScopeFromFull<T, S>]['methods'][M]
+export type MethodReturn<T extends RpcApi, S extends Scope<T>, M extends MethodName<T, S>> = Promise<
+  ReturnType<T[BaseScopeFromFull<T, S>]['methods'][M]>
 >;
 
 // Default RPC API

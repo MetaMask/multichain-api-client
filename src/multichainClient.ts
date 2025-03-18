@@ -17,16 +17,16 @@ export async function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
   return {
     createSession: async (params: CreateSessionParams<T>): Promise<SessionData> => {
       await ensureConnected();
-      return (await transport.request({
+      return await transport.request({
         method: 'wallet_createSession',
         params,
-      })) as unknown as SessionData;
+      });
     },
     getSession: async (): Promise<SessionData | undefined> => {
       await ensureConnected();
-      return (await transport.request({
+      return await transport.request({
         method: 'wallet_getSession',
-      })) as unknown as SessionData | undefined;
+      });
     },
     revokeSession: async () => {
       await transport.request({ method: 'wallet_revokeSession' });
@@ -34,8 +34,8 @@ export async function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
     },
     invokeMethod: async <S extends Scope<T>, M extends MethodName<T, S>>(
       params: InvokeMethodParams<T, S, M>,
-    ): Promise<MethodReturn<T, S, M>> => {
-      return transport.request({ method: 'wallet_invokeMethod', params });
+    ): MethodReturn<T, S, M> => {
+      return await transport.request({ method: 'wallet_invokeMethod', params });
     },
   };
 }

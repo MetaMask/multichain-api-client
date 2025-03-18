@@ -35,8 +35,6 @@ export interface SessionProperties {
  * Represents a tracked session in local store.
  */
 export interface SessionData {
-  /** CAIP-171 compliant session identifier (not used in MetaMask) */
-  sessionId?: string;
   /** Map of chain IDs to their respective scope objects */
   sessionScopes: Record<CaipChainId, ScopeObject>;
   /** Chain-specific properties (not implemented in MetaMask yet) */
