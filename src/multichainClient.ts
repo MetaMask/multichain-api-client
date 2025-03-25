@@ -1,7 +1,11 @@
-import type { Json } from '@metamask/utils';
-import type { CreateSessionParams, MultichainClient, SessionData, Transport } from './types';
+import type { CreateSessionParams, InvokeMethodParams, MultichainApiClient } from './types/multichainApi';
+import type { DefaultRpcApi, MethodName, MethodReturn, RpcApi, Scope } from './types/scopes';
+import type { SessionData } from './types/session';
+import type { Transport } from './types/transport';
 
-export async function getMultichainClient({ transport }: { transport: Transport }): Promise<MultichainClient> {
+export async function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
+  transport,
+}: { transport: Transport }): Promise<MultichainApiClient<T>> {
   await ensureConnected();
 
   async function ensureConnected() {
@@ -11,11 +15,11 @@ export async function getMultichainClient({ transport }: { transport: Transport 
   }
 
   return {
-    createSession: async (params: CreateSessionParams): Promise<SessionData> => {
+    createSession: async (params: CreateSessionParams<T>): Promise<SessionData> => {
       await ensureConnected();
       return (await transport.request({
         method: 'wallet_createSession',
-        params: params as Json,
+        params,
       })) as unknown as SessionData;
     },
     getSession: async (): Promise<SessionData | undefined> => {
@@ -28,8 +32,10 @@ export async function getMultichainClient({ transport }: { transport: Transport 
       await transport.request({ method: 'wallet_revokeSession' });
       await transport.disconnect();
     },
-    invokeMethod: async ({ scope, request }): Promise<Json> => {
-      return transport.request({ method: 'wallet_invokeMethod', params: { scope, request } });
+    invokeMethod: async <S extends Scope<T>, M extends MethodName<T, S>>(
+      params: InvokeMethodParams<T, S, M>,
+    ): Promise<MethodReturn<T, S, M>> => {
+      return transport.request({ method: 'wallet_invokeMethod', params });
     },
   };
 }
