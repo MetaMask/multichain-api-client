@@ -14,19 +14,30 @@
   "scripts": {
     "build:minify": "bun run build.ts --minify",
     "build": "bun run build.ts",
+    "build:watch": "bun --watch run build.ts",
     "prepublishOnly": "bun run build",
     "format:fix": "biome format --write",
+    "test": "bun test && bun test:types",
+    "test:types": "tsd  --files ./src/tests/index.test-d.ts",
     "lint:fix": "biome check --fix"
   },
   "files": [
     "dist"
   ],
   "license": "MIT",
+  "dependencies": {
+    "@metamask/providers": "^20.0.0",
+    "@metamask/utils": "^11.2.0",
+    "@solana/wallet-standard-chains": "^1.1.1",
+    "@solana/wallet-standard-features": "^1.3.0",
+    "@wallet-standard/features": "^1.1.0",
+    "@wallet-standard/wallet": "^1.1.0"
+  },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "@metamask/utils": "^11.2.0",
     "@types/bun": "^1.1.10",
     "@types/chrome": "^0.0.307",
-    "bun-plugin-dts": "^0.3.0"
+    "bun-plugin-dts": "^0.3.0",
+    "tsd": "^0.31.2"
   }
 }
