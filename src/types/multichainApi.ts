@@ -20,7 +20,7 @@ export type MultichainApi<T extends RpcApi> = {
   wallet_revokeSession: RpcMethod<void, void>;
   wallet_invokeMethod: <S extends Scope<T>, M extends MethodName<T, S>>(
     params: InvokeMethodParams<T, S, M>,
-  ) => Promise<MethodReturn<T, S, M>>;
+  ) => MethodReturn<T, S, M>;
 };
 
 // wallet_createSession params
