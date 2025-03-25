@@ -8,13 +8,16 @@ import {
 import {
   SolanaSignAndSendTransaction,
   type SolanaSignAndSendTransactionFeature,
+  type SolanaSignAndSendTransactionInput,
   type SolanaSignAndSendTransactionOutput,
   SolanaSignIn,
   SolanaSignMessage,
   type SolanaSignMessageFeature,
+  type SolanaSignMessageInput,
   type SolanaSignMessageOutput,
   SolanaSignTransaction,
   type SolanaSignTransactionFeature,
+  type SolanaSignTransactionInput,
   type SolanaSignTransactionOutput,
 } from '@solana/wallet-standard-features';
 import type { IdentifierArray, Wallet } from '@wallet-standard/base';
@@ -29,10 +32,11 @@ import {
   type StandardEventsNames,
   type StandardEventsOnMethod,
 } from '@wallet-standard/features';
-import { ReadonlyWalletAccount } from '@wallet-standard/wallet';
+import bs58 from 'bs58';
 import type { MultichainApiClient } from '../types/multichainApi';
 import type { SessionData } from '../types/session';
 import { metamaskIcon } from './icon';
+import { ReadonlyWalletAccount } from '@wallet-standard/wallet';
 
 export class MetamaskWalletAccount extends ReadonlyWalletAccount {
   constructor({ address, publicKey, chains }: { address: string; publicKey: Uint8Array; chains: IdentifierArray }) {
@@ -166,51 +170,87 @@ export class MetamaskWallet implements Wallet {
     await this.client.revokeSession(); // TODO: remove only the solana scope from the session
   };
 
-  #signAndSendTransaction = async (...inputs: any): Promise<SolanaSignAndSendTransactionOutput[]> => {
-    console.log('signAndSendTransaction', inputs);
+  #signAndSendTransaction = async (
+    ...inputs: SolanaSignAndSendTransactionInput[]
+  ): Promise<SolanaSignAndSendTransactionOutput[]> => {
     if (!this.#account) {
       throw new Error('No account found');
     }
+    const results: SolanaSignAndSendTransactionOutput[] = [];
 
-    const res = await this.client.invokeMethod({
-      scope: this.scope,
-      request: {
-        method: 'signAndSendTransaction',
-        params: {
-          account: { address: this.#account.address },
-          transaction: '',
-          scope: this.scope,
+    for (const { transaction: transactionBuffer, account } of inputs) {
+      const transaction = Buffer.from(transactionBuffer).toString('base64');
+
+      const signAndSendTransactionRes = await this.client.invokeMethod({
+        scope: this.scope,
+        request: {
+          method: 'signAndSendTransaction',
+          params: {
+            account: { address: account.address },
+            transaction,
+            scope: this.scope,
+          },
         },
-      },
-    });
+      });
 
-    console.log('res', res);
+      results.push({
+        signature: bs58.decode(signAndSendTransactionRes.signature),
+      });
+    }
 
-    // @ts-ignore
-    return [res.signature];
+    return results;
   };
 
-  #signTransaction = async (/* ...inputs */): Promise<SolanaSignTransactionOutput[]> => {
-    return await new Promise((_, reject) => reject(new Error('signTransaction: Not implemented')));
+  #signTransaction = async (...inputs: SolanaSignTransactionInput[]): Promise<SolanaSignTransactionOutput[]> => {
+    const results: SolanaSignTransactionOutput[] = [];
+
+    for (const { transaction: transactionBuffer, account } of inputs) {
+      const transaction = Buffer.from(transactionBuffer).toString('base64');
+
+      const signTransactionRes = await this.client.invokeMethod({
+        scope: this.scope,
+        request: {
+          method: 'signTransaction',
+          params: {
+            account: { address: account.address },
+            transaction,
+            scope: this.scope,
+          },
+        },
+      });
+
+      results.push({
+        signedTransaction: Uint8Array.from(Buffer.from(signTransactionRes.signedTransaction, 'base64')),
+      });
+    }
+
+    return results;
   };
 
-  #signMessage = async (...inputs: any): Promise<SolanaSignMessageOutput[]> => {
-    const { message: uint8ArrayMessage, account } = inputs[0];
-    const message = Buffer.from(uint8ArrayMessage).toString('base64');
+  #signMessage = async (...inputs: SolanaSignMessageInput[]): Promise<SolanaSignMessageOutput[]> => {
+    const results: SolanaSignMessageOutput[] = [];
 
-    const signMessageRes = await this.client.invokeMethod({
-      scope: this.scope,
-      request: {
-        method: 'signMessage',
-        params: {
-          message,
-          account: { address: account.address },
+    for (const { message: messageBuffer, account } of inputs) {
+      const message = Buffer.from(messageBuffer).toString('base64');
+
+      const signMessageRes = await this.client.invokeMethod({
+        scope: this.scope,
+        request: {
+          method: 'signMessage',
+          params: {
+            message,
+            account: { address: account.address },
+          },
         },
-      },
-    });
+      });
 
-    console.log('signature res', signMessageRes);
+      results.push({
+        signedMessage: Buffer.from(signMessageRes.signedMessage, 'base64'),
+        signature: bs58.decode(signMessageRes.signature),
+        signatureType: signMessageRes.signatureType as 'ed25519',
+      });
+    }
 
-    return [signMessageRes] as unknown as SolanaSignMessageOutput[];
+    return results;
   };
 }
