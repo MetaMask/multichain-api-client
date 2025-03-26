@@ -1,4 +1,4 @@
-import type { CaipAccountId } from '@metamask/utils';
+import { parseCaipAccountId, type CaipAccountId } from '@metamask/utils';
 import {
   SOLANA_DEVNET_CHAIN,
   SOLANA_MAINNET_CHAIN,
@@ -137,9 +137,15 @@ export class MetamaskWallet implements Wallet {
             optionalScopes: {
               [this.scope]: {
                 methods: ['getGenesisHash', 'signMessage'],
-                notifications: ['accountsChanged'],
-                accounts: [`${this.scope}:6AwJL1LnMjwsB8GkJCPexEwznnhpiMV4DHv8QsRLtnNc`] as CaipAccountId[],
+                notifications: [],
+                accounts: [
+                  `${this.scope}:6AwJL1LnMjwsB8GkJCPexEwznnhpiMV4DHv8QsRLtnNc`,
+                  `${this.scope}:3BKnSHdTwfpXC28tERtHBcd11tgtMTJ1iX4wzyueUUaL`,
+                ] as CaipAccountId[],
               },
+            },
+            sessionProperties: {
+              solana_accountChanged_notifications: true,
             },
           });
 
@@ -149,14 +155,13 @@ export class MetamaskWallet implements Wallet {
         throw new Error('No accounts found in MetaMask session');
       }
 
-      const address = accounts[0]?.slice(this.scope.length + 1);
+      // Set the first account as selected
+      this.#account = this.#getAccountFromAddress(parseCaipAccountId(accounts[0]).address);
 
-      const publicKey = new Uint8Array(Buffer.from(address, 'hex'));
-
-      this.#account = new MetamaskWalletAccount({
-        address,
-        publicKey,
-        chains: this.chains,
+      this.client.onNotification((data: any) => {
+        if (data?.params?.notification?.method === 'metamask_accountsChanged') {
+          this.#handleAccountsChangedEvent(data);
+        }
       });
 
       this.#emit('change', { accounts: this.accounts });
@@ -167,7 +172,7 @@ export class MetamaskWallet implements Wallet {
 
   #disconnect = async () => {
     this.#account = undefined;
-    await this.client.revokeSession(); // TODO: remove only the solana scope from the session
+    await this.client.revokeSession();
   };
 
   #signAndSendTransaction = async (
@@ -253,4 +258,21 @@ export class MetamaskWallet implements Wallet {
 
     return results;
   };
+
+  #handleAccountsChangedEvent(data: any) {
+    const address = data?.params?.notification?.params?.[0];
+
+    if (address) {
+      this.#account = this.#getAccountFromAddress(address);
+      this.#emit('change', { accounts: this.accounts });
+    }
+  }
+
+  #getAccountFromAddress(address: string) {
+    return new MetamaskWalletAccount({
+      address,
+      publicKey: new Uint8Array(bs58.decode(address)),
+      chains: this.chains,
+    });
+  }
 }
