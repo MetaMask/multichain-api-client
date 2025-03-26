@@ -37,5 +37,8 @@ export async function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
     ): MethodReturn<T, S, M> => {
       return await transport.request({ method: 'wallet_invokeMethod', params });
     },
+    onNotification: (callback: (data: unknown) => void) => {
+      return transport.onNotification(callback);
+    },
   };
 }
