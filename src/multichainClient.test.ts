@@ -1,6 +1,6 @@
 import { describe, expect, it, mock } from 'bun:test';
 import { getMultichainClient } from './multichainClient';
-import { getMockTransport, mockScope, mockSession } from './tests/mocks';
+import { getMockTransport, mockScope, mockSession } from '../tests/mocks';
 
 const mockTransport = getMockTransport();
 describe('getMultichainClient', () => {
