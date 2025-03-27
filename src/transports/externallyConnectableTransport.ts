@@ -1,8 +1,7 @@
-import { isNullOrUndefined } from '@metamask/utils';
 import { detectMetamaskExtensionIdOnInit } from '../helpers/metamaskExtensionId';
 import type { Transport } from '../types/transport';
 
-export function getExternallyConnectableTransport(params: { extensionId?: string }): Transport {
+export function getExternallyConnectableTransport(params: { extensionId?: string } = {}): Transport {
   let { extensionId } = params;
   let chromePort: chrome.runtime.Port | undefined;
   let requestId = 0;
@@ -19,7 +18,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
    * @param msg
    */
   function handleChromeMessage(msg: any) {
-    if (isNullOrUndefined(msg?.data?.id)) {
+    if (msg?.data?.id === null || msg?.data?.id === undefined) {
       // No id => notification
       console.debug('[ChromeTransport] chrome notification:', msg);
       notifyCallbacks(msg.data);
