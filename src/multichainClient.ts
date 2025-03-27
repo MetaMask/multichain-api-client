@@ -10,6 +10,9 @@ function createBaseClient<T extends RpcApi>(transport: Transport): MultichainApi
     }
   }
 
+  // @TODO: why do we connect by default here?
+  void ensureConnected();
+
   return {
     createSession: async (params: CreateSessionParams<T>): Promise<SessionData> => {
       await ensureConnected();

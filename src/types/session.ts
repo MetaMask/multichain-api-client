@@ -1,4 +1,14 @@
-import type { CaipAccountId, CaipChainId, Json } from '@metamask/utils';
+type CaipAccountId = `${string}:${string}:${string}`;
+type CaipChainId = `${string}:${string}`;
+type Json =
+  | string
+  | number
+  | boolean
+  | Json[]
+  | {
+      [prop: string]: Json;
+    }
+  | null;
 
 /**
  * Represents a scope object as defined in CAIP-217.

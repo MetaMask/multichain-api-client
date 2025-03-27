@@ -1,44 +1,143 @@
 {
-  "name": "multichain-api-client",
-  "type": "module",
+  "name": "@metamask/multichain-api-client",
   "version": "0.0.0",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "description": "",
+  "description": "The MetaMask Node module template",
+  "homepage": "https://github.com/MetaMask/multichain-api-client#readme",
+  "bugs": {
+    "url": "https://github.com/MetaMask/multichain-api-client/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MetaMask/multichain-api-client.git"
+  },
+  "sideEffects": false,
   "exports": {
-    "types": "./dist/index.d.ts",
-    "import": "./dist/index.js",
-    "require": "./dist/index.cjs"
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./dist/helpers/metamaskExtensionId": {
+      "import": {
+        "types": "./dist/helpers/metamaskExtensionId.d.mts",
+        "default": "./dist/helpers/metamaskExtensionId.mjs"
+      },
+      "require": {
+        "types": "./dist/helpers/metamaskExtensionId.d.cts",
+        "default": "./dist/helpers/metamaskExtensionId.cjs"
+      }
+    },
+    "./dist/helpers/providerDetection": {
+      "import": {
+        "types": "./dist/helpers/providerDetection.d.mts",
+        "default": "./dist/helpers/providerDetection.mjs"
+      },
+      "require": {
+        "types": "./dist/helpers/providerDetection.d.cts",
+        "default": "./dist/helpers/providerDetection.cjs"
+      }
+    },
+    "./dist/helpers/utils": {
+      "import": {
+        "types": "./dist/helpers/utils.d.mts",
+        "default": "./dist/helpers/utils.mjs"
+      },
+      "require": {
+        "types": "./dist/helpers/utils.d.cts",
+        "default": "./dist/helpers/utils.cjs"
+      }
+    },
+    "./dist/transports/externallyConnectableTransport": {
+      "import": {
+        "types": "./dist/transports/externallyConnectableTransport.d.mts",
+        "default": "./dist/transports/externallyConnectableTransport.mjs"
+      },
+      "require": {
+        "types": "./dist/transports/externallyConnectableTransport.d.cts",
+        "default": "./dist/transports/externallyConnectableTransport.cjs"
+      }
+    },
+    "./dist/transports/streamTransport": {
+      "import": {
+        "types": "./dist/transports/streamTransport.d.mts",
+        "default": "./dist/transports/streamTransport.mjs"
+      },
+      "require": {
+        "types": "./dist/transports/streamTransport.d.cts",
+        "default": "./dist/transports/streamTransport.cjs"
+      }
+    },
+    "./dist/multichainClient": {
+      "import": {
+        "types": "./dist/multichainClient.d.mts",
+        "default": "./dist/multichainClient.mjs"
+      },
+      "require": {
+        "types": "./dist/multichainClient.d.cts",
+        "default": "./dist/multichainClient.cjs"
+      }
+    },
+    "./package.json": "./package.json"
   },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "files": ["dist"],
   "scripts": {
-    "build:minify": "bun run build.ts --minify",
-    "build": "bun run build.ts",
-    "build:watch": "bun --watch run build.ts",
-    "prepublishOnly": "bun run build",
+    "build": "ts-bridge --project tsconfig.build.json --clean",
+    "build:docs": "typedoc",
+    "format": "biome format",
     "format:fix": "biome format --write",
-    "test": "bun test && bun test:types",
-    "test:types": "tsd  --files ./tests/index.test-d.ts",
-    "lint:fix": "biome check --fix"
-  },
-  "files": [
-    "dist"
-  ],
-  "license": "MIT",
-  "dependencies": {
-    "@metamask/providers": "^20.0.0",
-    "@metamask/utils": "^11.2.0",
-    "@solana/wallet-standard-chains": "^1.1.1",
-    "@solana/wallet-standard-features": "^1.3.0",
-    "@wallet-standard/features": "^1.1.0",
-    "@wallet-standard/wallet": "^1.1.0",
-    "bs58": "^6.0.0"
+    "lint": "yarn lint:biome && yarn lint:constraints && yarn lint:dependencies --check && yarn lint:changelog",
+    "lint:changelog": "auto-changelog validate --prettier",
+    "lint:constraints": "yarn constraints",
+    "lint:dependencies": "depcheck && yarn dedupe",
+    "lint:biome": "biome check",
+    "lint:fix": "yarn lint:biome --fix && yarn format:fix && yarn lint:constraints --fix && yarn lint:dependencies && yarn lint:changelog",
+    "prepack": "./scripts/prepack.sh",
+    "test": "vitest && attw --pack && yarn test:types",
+    "test:types": "tsd  --files ./src/tests/index.test-d.ts",
+    "test:watch": "vitest --watch"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.15.3",
     "@biomejs/biome": "1.9.4",
-    "@types/bun": "^1.1.10",
+    "@lavamoat/allow-scripts": "^3.0.4",
+    "@lavamoat/preinstall-always-fail": "^2.0.0",
+    "@metamask/auto-changelog": "^4.0.0",
+    "@metamask/providers": "^20.0.0",
+    "@ts-bridge/cli": "^0.6.3",
     "@types/chrome": "^0.0.307",
-    "bun-plugin-dts": "^0.3.0",
-    "tsd": "^0.31.2"
+    "@vitest/coverage-istanbul": "^3.0.7",
+    "@vitest/eslint-plugin": "^1.1.4",
+    "@yarnpkg/types": "^4.0.0-rc.52",
+    "depcheck": "^1.4.3",
+    "prettier": "^3.5.3",
+    "ts-node": "^10.7.0",
+    "tsd": "^0.31.2",
+    "typedoc": "^0.26.11",
+    "typescript": "~5.7.3",
+    "vite": "^6.2.0",
+    "vitest": "^3.0.7"
+  },
+  "packageManager": "yarn@4.1.1",
+  "engines": {
+    "node": "^18.20 || ^20.17 || >=22"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "lavamoat": {
+    "allowScripts": {
+      "@lavamoat/preinstall-always-fail": false,
+      "vite>esbuild": false,
+      "@biomejs/biome": false
+    }
   }
 }
