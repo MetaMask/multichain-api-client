@@ -11,6 +11,9 @@ import {
   type SolanaSignAndSendTransactionInput,
   type SolanaSignAndSendTransactionOutput,
   SolanaSignIn,
+  type SolanaSignInFeature,
+  type SolanaSignInInput,
+  type SolanaSignInOutput,
   SolanaSignMessage,
   type SolanaSignMessageFeature,
   type SolanaSignMessageInput,
@@ -37,6 +40,7 @@ import type { MultichainApiClient } from '../types/multichainApi';
 import type { SessionData } from '../types/session';
 import { metamaskIcon } from './icon';
 import { ReadonlyWalletAccount } from '@wallet-standard/wallet';
+import type { DeepWriteable } from './types';
 
 export class MetamaskWalletAccount extends ReadonlyWalletAccount {
   constructor({ address, publicKey, chains }: { address: string; publicKey: Uint8Array; chains: IdentifierArray }) {
@@ -69,6 +73,7 @@ export class MetamaskWallet implements Wallet {
   }
 
   get features(): StandardConnectFeature &
+    SolanaSignInFeature &
     StandardDisconnectFeature &
     StandardEventsFeature &
     SolanaSignAndSendTransactionFeature &
@@ -78,6 +83,10 @@ export class MetamaskWallet implements Wallet {
       [StandardConnect]: {
         version: this.version,
         connect: this.#connect,
+      },
+      [SolanaSignIn]: {
+        version: this.version,
+        signIn: this.#signIn,
       },
       [StandardDisconnect]: {
         version: this.version,
@@ -168,6 +177,40 @@ export class MetamaskWallet implements Wallet {
     }
 
     return { accounts: this.accounts };
+  };
+
+  #signIn = async (...inputs: SolanaSignInInput[]): Promise<SolanaSignInOutput[]> => {
+    if (!this.#account) {
+      await this.#connect();
+
+      if (!this.#account) {
+        throw new Error('No account found');
+      }
+    }
+
+    const results: SolanaSignInOutput[] = [];
+
+    for (const input of inputs) {
+      const signInRes = await this.client.invokeMethod({
+        scope: this.scope,
+        request: {
+          method: 'signIn',
+          params: {
+            ...input,
+            domain: input.domain || window.location.host,
+            address: input.address || this.#account.address,
+          } as DeepWriteable<SolanaSignInInput>,
+        },
+      });
+
+      results.push({
+        account: this.#account,
+        signedMessage: Buffer.from(signInRes.signedMessage, 'base64'),
+        signature: bs58.decode(signInRes.signature),
+      });
+    }
+
+    return results;
   };
 
   #disconnect = async () => {
