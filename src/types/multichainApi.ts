@@ -1,5 +1,5 @@
 import type { DefaultRpcApi, MethodName, MethodParams, MethodReturn, RpcApi, RpcMethod, Scope } from './scopes';
-import type { ScopeObject, SessionData } from './session';
+import type { ScopeObject, SessionData, SessionProperties } from './session';
 
 export type MultichainApiMethod = keyof MultichainApi<any>;
 export type MultichainApiParams<T extends RpcApi, M extends MultichainApiMethod> = Parameters<MultichainApi<T>[M]>[0];
@@ -11,6 +11,7 @@ export type MultichainApiClient<T extends RpcApi = DefaultRpcApi> = {
   getSession: MultichainApi<T>['wallet_getSession'];
   revokeSession: MultichainApi<T>['wallet_revokeSession'];
   invokeMethod: MultichainApi<T>['wallet_invokeMethod'];
+  onNotification: (callback: (data: unknown) => void) => void;
 };
 
 // Multichain API Methods
@@ -27,6 +28,7 @@ export type MultichainApi<T extends RpcApi> = {
 export type CreateSessionParams<T extends RpcApi> = {
   requiredScopes?: Record<Scope<T>, ScopeObject>;
   optionalScopes?: Record<Scope<T>, ScopeObject>;
+  sessionProperties?: SessionProperties;
 };
 
 // wallet_invokeMethod params
