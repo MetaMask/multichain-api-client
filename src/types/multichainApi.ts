@@ -11,6 +11,7 @@ export type MultichainApiClient<T extends RpcApi = DefaultRpcApi> = {
   getSession: MultichainApi<T>['wallet_getSession'];
   revokeSession: MultichainApi<T>['wallet_revokeSession'];
   invokeMethod: MultichainApi<T>['wallet_invokeMethod'];
+  extendsRpcApi: <U extends RpcApi>() => MultichainApiClient<T & U>;
   onNotification: (callback: (data: unknown) => void) => void;
 };
 

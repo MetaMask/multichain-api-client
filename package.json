@@ -18,7 +18,7 @@
     "prepublishOnly": "bun run build",
     "format:fix": "biome format --write",
     "test": "bun test && bun test:types",
-    "test:types": "tsd  --files ./src/tests/index.test-d.ts",
+    "test:types": "tsd  --files ./tests/index.test-d.ts",
     "lint:fix": "biome check --fix"
   },
   "files": [
