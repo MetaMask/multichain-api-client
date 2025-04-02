@@ -13,81 +13,48 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      }
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
     },
     "./dist/helpers/metamaskExtensionId": {
-      "import": {
-        "types": "./dist/helpers/metamaskExtensionId.d.mts",
-        "default": "./dist/helpers/metamaskExtensionId.mjs"
-      },
-      "require": {
-        "types": "./dist/helpers/metamaskExtensionId.d.cts",
-        "default": "./dist/helpers/metamaskExtensionId.cjs"
-      }
+      "types": "./dist/helpers/metamaskExtensionId.d.mts",
+      "import": "./dist/helpers/metamaskExtensionId.mjs",
+      "require": "./dist/helpers/metamaskExtensionId.cjs"
     },
     "./dist/helpers/providerDetection": {
-      "import": {
-        "types": "./dist/helpers/providerDetection.d.mts",
-        "default": "./dist/helpers/providerDetection.mjs"
-      },
-      "require": {
-        "types": "./dist/helpers/providerDetection.d.cts",
-        "default": "./dist/helpers/providerDetection.cjs"
-      }
+      "types": "./dist/helpers/providerDetection.d.mts",
+      "import": "./dist/helpers/providerDetection.mjs",
+      "require": "./dist/helpers/providerDetection.cjs"
     },
     "./dist/helpers/utils": {
-      "import": {
-        "types": "./dist/helpers/utils.d.mts",
-        "default": "./dist/helpers/utils.mjs"
-      },
-      "require": {
-        "types": "./dist/helpers/utils.d.cts",
-        "default": "./dist/helpers/utils.cjs"
-      }
+      "types": "./dist/helpers/utils.d.mts",
+      "import": "./dist/helpers/utils.mjs",
+      "require": "./dist/helpers/utils.cjs"
     },
     "./dist/transports/externallyConnectableTransport": {
-      "import": {
-        "types": "./dist/transports/externallyConnectableTransport.d.mts",
-        "default": "./dist/transports/externallyConnectableTransport.mjs"
-      },
-      "require": {
-        "types": "./dist/transports/externallyConnectableTransport.d.cts",
-        "default": "./dist/transports/externallyConnectableTransport.cjs"
-      }
+      "types": "./dist/transports/externallyConnectableTransport.d.mts",
+      "import": "./dist/transports/externallyConnectableTransport.mjs",
+      "require": "./dist/transports/externallyConnectableTransport.cjs"
     },
     "./dist/transports/streamTransport": {
-      "import": {
-        "types": "./dist/transports/streamTransport.d.mts",
-        "default": "./dist/transports/streamTransport.mjs"
-      },
-      "require": {
-        "types": "./dist/transports/streamTransport.d.cts",
-        "default": "./dist/transports/streamTransport.cjs"
-      }
+      "types": "./dist/transports/streamTransport.d.mts",
+      "import": "./dist/transports/streamTransport.mjs",
+      "require": "./dist/transports/streamTransport.cjs"
     },
     "./dist/multichainClient": {
-      "import": {
-        "types": "./dist/multichainClient.d.mts",
-        "default": "./dist/multichainClient.mjs"
-      },
-      "require": {
-        "types": "./dist/multichainClient.d.cts",
-        "default": "./dist/multichainClient.cjs"
-      }
+      "types": "./dist/multichainClient.d.mts",
+      "import": "./dist/multichainClient.mjs",
+      "require": "./dist/multichainClient.cjs"
     },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
-  "types": "./dist/index.d.cts",
-  "files": ["dist"],
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "ts-bridge --project tsconfig.build.json --clean",
     "build:docs": "typedoc",
@@ -100,12 +67,12 @@
     "lint:biome": "biome check",
     "lint:fix": "yarn lint:biome --fix && yarn format:fix && yarn lint:constraints --fix && yarn lint:dependencies && yarn lint:changelog",
     "prepack": "./scripts/prepack.sh",
-    "test": "vitest && attw --pack && yarn test:types",
+    "test": "vitest && attw --pack --profile node16 && yarn test:types",
     "test:types": "tsd  --files ./src/tests/index.test-d.ts",
     "test:watch": "vitest --watch"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.15.3",
+    "@arethetypeswrong/cli": "0.17.4",
     "@biomejs/biome": "1.9.4",
     "@lavamoat/allow-scripts": "^3.0.4",
     "@lavamoat/preinstall-always-fail": "^2.0.0",
