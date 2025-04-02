@@ -1,7 +1,7 @@
 import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from './multichainApi';
 import type { RpcApi } from './scopes';
 
-export interface Transport {
+export type Transport = {
   connect: () => Promise<boolean>;
   disconnect: () => Promise<void>;
   isConnected: () => boolean;
@@ -10,4 +10,4 @@ export interface Transport {
     params?: MultichainApiParams<T, M>;
   }) => Promise<MultichainApiReturn<T, M>>;
   onNotification: (callback: (data: unknown) => void) => void;
-}
+};

@@ -1,15 +1,7 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "ignore": [
-      "tsconfig.json",
-      "tsconfig.app.json",
-      "tsconfig.node.json",
-      "tmp/",
-      ".vscode/",
-      "dist",
-      "node_modules"
-    ]
+    "ignore": [".vscode/", "dist", "node_modules", "coverage", "yarn.config.cjs", "vitest.config.mts"]
   },
   "formatter": {
     "enabled": true,

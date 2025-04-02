@@ -1,4 +1,4 @@
-import { mock } from 'bun:test';
+import { vi } from 'vitest';
 import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from '../src/types/multichainApi';
 import type { DefaultRpcApi, Scope } from '../src/types/scopes';
 import type { ScopeObject, SessionData } from '../src/types/session';
@@ -26,11 +26,11 @@ export const mockSession: SessionData = {
 };
 
 export function getMockTransport(): Transport {
-  const isConnected = mock(() => true);
-  const connect = mock(() => Promise.resolve(true));
-  const disconnect = mock(() => Promise.resolve());
-  const onNotification = mock(() => {});
-  const request = mock(
+  const isConnected = vi.fn(() => true);
+  const connect = vi.fn(() => Promise.resolve(true));
+  const disconnect = vi.fn(() => Promise.resolve());
+  const onNotification = vi.fn(() => {});
+  const request = vi.fn(
     async <T extends DefaultRpcApi, M extends MultichainApiMethod>({
       method,
       params,

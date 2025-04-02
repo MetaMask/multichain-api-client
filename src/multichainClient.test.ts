@@ -1,6 +1,6 @@
-import { describe, expect, it, mock } from 'bun:test';
+import { describe, expect, it, vi } from 'vitest';
+import { getMockTransport, mockScope, mockSession } from '../tests/mocks';
 import { getMultichainClient } from './multichainClient';
-import { getMockTransport, mockScope, mockSession } from './tests/mocks';
 
 const mockTransport = getMockTransport();
 describe('getMultichainClient', () => {
@@ -104,8 +104,8 @@ describe('getMultichainClient', () => {
   });
 
   it('should ensure transport is connected before making requests', async () => {
-    const mockConnect = mock(() => Promise.resolve(true));
-    const mockIsConnected = mock(() => false);
+    const mockConnect = vi.fn(() => Promise.resolve(true));
+    const mockIsConnected = vi.fn(() => false);
     const transport = {
       ...mockTransport,
       connect: mockConnect,

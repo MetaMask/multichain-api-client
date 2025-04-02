@@ -107,3 +107,67 @@ expectError(
     },
   }),
 );
+
+// ==========================================
+// Test extended RPC API
+// ==========================================
+
+// Extend transport with custom methods
+const extendedClient = client.extendsRpcApi<{
+  fakeScope: {
+    methods: {
+      fakeMethod: (params: { message: string }) => Promise<string>;
+    };
+  };
+  solana: {
+    methods: {
+      signAllTransactions: (params: { transactions: string[] }) => Promise<string[]>;
+    };
+  };
+}>();
+
+// Test method on added scope
+expectType<string>(
+  await extendedClient.invokeMethod({
+    scope: 'fakeScope:1',
+    request: {
+      method: 'fakeMethod',
+      params: {
+        message: 'message',
+      },
+    },
+  }),
+);
+
+// Test existing method on existing scope
+expectType<{
+  signature: string;
+  signedMessage: string;
+  signatureType?: string;
+}>(
+  await extendedClient.invokeMethod({
+    scope: 'solana:1',
+    request: {
+      method: 'signMessage',
+      params: {
+        account: {
+          address: '1234567890',
+        },
+        message: 'message',
+      },
+    },
+  }),
+);
+
+// Test added method on existing scope
+expectType<string[]>(
+  await extendedClient.invokeMethod({
+    scope: 'solana:1',
+    request: {
+      method: 'signAllTransactions',
+      params: {
+        transactions: ['transaction1', 'transaction2'],
+      },
+    },
+  }),
+);
