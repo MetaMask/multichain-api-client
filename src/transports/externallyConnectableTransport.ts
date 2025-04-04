@@ -121,10 +121,6 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
             } else {
               resolve(msg.data.result);
             }
-          } else if (!msg?.data?.id) {
-            // This is presumably a notification
-            console.debug('[ExtensionProvider] notification from chrome:', msg.data);
-            notifyCallbacks(msg.data);
           }
         };
 
