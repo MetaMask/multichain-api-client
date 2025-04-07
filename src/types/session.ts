@@ -13,15 +13,16 @@ type Json =
 /**
  * Represents a scope object as defined in CAIP-217.
  * Used to define permissions and capabilities for a specific chain or context.
+ *
+ * @property references - List of external references or resources this scope can access
+ * @property methods - List of JSON-RPC methods this scope can invoke
+ * @property notifications - List of notification types this scope can receive
+ * @property accounts - List of CAIP-10 account identifiers this scope has access to
  */
 export type ScopeObject = {
-  /** List of external references or resources this scope can access */
   references?: string[];
-  /** List of JSON-RPC methods this scope can invoke */
   methods?: string[];
-  /** List of notification types this scope can receive */
   notifications?: string[];
-  /** List of CAIP-10 account identifiers this scope has access to */
   accounts?: CaipAccountId[];
 };
 

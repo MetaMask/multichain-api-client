@@ -26,9 +26,8 @@ async function hasSnapsSupport(provider: MetaMaskInpageProvider = window.ethereu
 }
 
 /**
- * Get a MetaMask provider using EIP6963. This will return the first provider
- * reporting as MetaMask. If no provider is found after 500ms, this will
- * return null instead.
+ * Get a MetaMask provider using EIP6963. This will return the first provider reporting as MetaMask. If no provider
+ * is found after 500ms, this will return null instead.
  *
  * @returns A MetaMask provider if found, otherwise null.
  */
