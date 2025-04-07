@@ -5,13 +5,61 @@ export type MultichainApiMethod = keyof MultichainApi<any>;
 export type MultichainApiParams<T extends RpcApi, M extends MultichainApiMethod> = Parameters<MultichainApi<T>[M]>[0];
 export type MultichainApiReturn<T extends RpcApi, M extends MultichainApiMethod> = ReturnType<MultichainApi<T>[M]>;
 
-// Type for transport layer mapping to the multichain api methods
+/**
+ * Type for transport layer mapping to the multichain api methods
+ *
+ * @typeParam T - The RPC API type that defines available methods and their parameters
+ */
 export type MultichainApiClient<T extends RpcApi = DefaultRpcApi> = {
+  /**
+   * Creates a new session with the wallet
+   *
+   * @param params - Session creation parameters
+   * @param params.requiredScopes - Required scopes that must be granted by the wallet
+   * @param params.optionalScopes - Optional scopes that may be granted by the wallet
+   * @param params.sessionProperties - Properties to be associated with the session
+   * @returns A promise that resolves to the session data
+   */
   createSession: MultichainApi<T>['wallet_createSession'];
+
+  /**
+   * Gets the current session data if a session exists
+   *
+   * @returns A promise that resolves to the session data or undefined if no session exists
+   */
   getSession: MultichainApi<T>['wallet_getSession'];
+
+  /**
+   * Revokes the current session and disconnects from the wallet
+   *
+   * @returns A promise that resolves when the session is revoked
+   */
   revokeSession: MultichainApi<T>['wallet_revokeSession'];
+
+  /**
+   * Invokes a method on the wallet for a specific scope
+   *
+   * @param params - Method invocation parameters
+   * @param params.scope - The scope to invoke the method on
+   * @param params.request - The method request details
+   * @param params.request.method - The method name to invoke
+   * @param params.request.params - The parameters for the method
+   * @returns A promise that resolves to the method return value
+   */
   invokeMethod: MultichainApi<T>['wallet_invokeMethod'];
+
+  /**
+   * Extends the RPC API with additional methods
+   *
+   * @returns A new MultichainApiClient with the extended RPC API
+   */
   extendsRpcApi: <U extends RpcApi>() => MultichainApiClient<T & U>;
+
+  /**
+   * Registers a callback for notifications from the wallet
+   *
+   * @param callback - Function to call when a notification is received
+   */
   onNotification: (callback: (data: unknown) => void) => void;
 };
 
