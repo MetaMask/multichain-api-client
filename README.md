@@ -12,7 +12,25 @@ or
 
 ## Usage
 
-_Add examples here_
+```typescript
+import { getMultichainClient, getDefaultTransport } from '@metamask/multichain-api-client';
+
+const client = await getMultichainClient({ transport: getDefaultTransport() });
+const session = await client.createSession({ requiredScopes: ['eip155:1'] });
+
+const result = await client.invokeMethod({
+   scope: 'eip155:1',
+   request: {
+      method: 'eth_call',
+      params: {
+         to: '0x1234567890',
+         data: '0x1234567890',
+      },
+   },
+});
+
+await client.revokeSession();
+```
 
 ## API
 

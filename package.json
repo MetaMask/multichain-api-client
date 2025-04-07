@@ -1,7 +1,8 @@
 {
   "name": "@metamask/multichain-api-client",
   "version": "0.0.2",
-  "description": "The MetaMask Node module template",
+  "license": "ISC",
+  "description": "MetaMask Multichain Api Client",
   "homepage": "https://github.com/MetaMask/multichain-api-client#readme",
   "bugs": {
     "url": "https://github.com/MetaMask/multichain-api-client/issues"

@@ -6,6 +6,6 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true
   },
-  "include": ["./src/**/*.test.ts", "./src/**/*.test-d.ts"],
+  "include": ["./src/**/*.test.ts"],
   "exclude": ["./dist", "**/node_modules"]
 }
