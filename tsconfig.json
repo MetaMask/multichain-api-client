@@ -2,7 +2,7 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["ES2020", "dom"],
+    "lib": ["ES2023", "dom"],
     "module": "ESNext",
     "moduleResolution": "node",
     "noEmit": true,
