@@ -146,12 +146,6 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
 
         // Send it
         currentChromePort.postMessage({ type: 'caip-x', data: requestPayload });
-
-        // optional timeout
-        setTimeout(() => {
-          currentChromePort?.onMessage.removeListener(handleMessage);
-          reject(new Error('request timeout'));
-        }, 30000);
       });
     },
     onNotification: (callback: (data: unknown) => void) => {
