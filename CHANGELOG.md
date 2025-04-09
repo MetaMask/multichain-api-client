@@ -9,10 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.1]
 
-### Uncategorized
+### Fixed
 
-- Revert "ci: reenable docs generation (#32)" ([#32](https://github.com/MetaMask/multichain-api-client/pull/32))
-- ci: reenable docs generation ([#32](https://github.com/MetaMask/multichain-api-client/pull/32))
 - Bm/remove request timeout ([#31](https://github.com/MetaMask/multichain-api-client/pull/31))
 
 ## [0.1.0]
