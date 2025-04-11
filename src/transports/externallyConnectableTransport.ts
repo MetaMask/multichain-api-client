@@ -37,16 +37,13 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
    * Handle messages from the extension
    * @param msg
    */
-  function handleChromeMessage(msg: any) {
+  function handleMessage(msg: any) {
     // Handle notifications (messages without id)
     if (msg?.data?.id === null || msg?.data?.id === undefined) {
       // No id => notification
       notifyCallbacks(msg.data);
-      return;
-    }
-
-    // Handle responses to requests
-    if (msg?.data?.id && requestMap.has(msg.data.id)) {
+    } else if (requestMap.has(msg.data.id)) {
+      // Handle responses to requests
       const { resolve, reject } = requestMap.get(msg.data.id) ?? {};
       requestMap.delete(msg.data.id);
 
@@ -105,7 +102,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
         }
 
         // Listen to messages from the extension
-        chromePort.onMessage.addListener(handleChromeMessage);
+        chromePort.onMessage.addListener(handleMessage);
 
         return true;
       } catch (err) {

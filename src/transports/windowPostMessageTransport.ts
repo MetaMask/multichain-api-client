@@ -43,7 +43,10 @@ export function getWindowPostMessageTransport(): Transport {
   }
 
   function handleMessage(message: any): void {
-    if (message.id && requestMap.has(message.id)) {
+    if (message?.id === null || message?.id === undefined) {
+      // No id => notification
+      notifyCallbacks(message);
+    } else if (requestMap.has(message.id)) {
       const { resolve, reject } = requestMap.get(message.id) ?? {};
       requestMap.delete(message.id);
 
@@ -54,9 +57,6 @@ export function getWindowPostMessageTransport(): Transport {
           resolve(message.result);
         }
       }
-    } else if (!message.id) {
-      // It's a notification
-      notifyCallbacks(message);
     }
   }
 
