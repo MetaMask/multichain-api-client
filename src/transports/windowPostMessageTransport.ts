@@ -1,6 +1,7 @@
 import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from '../types/multichainApi';
 import type { RpcApi } from '../types/scopes';
 import type { Transport } from '../types/transport';
+import { REQUEST_CAIP } from './constants';
 
 const CONTENT_SCRIPT = 'metamask-contentscript';
 const INPAGE = 'metamask-inpage';
@@ -132,7 +133,7 @@ function _sendRequest(request: any) {
       data: {
         name: MULTICHAIN_SUBSTREAM_NAME,
         data: {
-          type: 'caip-x',
+          type: REQUEST_CAIP,
           data: request,
         },
       },

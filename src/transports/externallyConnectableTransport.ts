@@ -2,6 +2,7 @@ import { detectMetamaskExtensionIdOnInit } from '../helpers/metamaskExtensionId'
 import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from '../types/multichainApi';
 import type { RpcApi } from '../types/scopes';
 import type { Transport } from '../types/transport';
+import { REQUEST_CAIP } from './constants';
 
 /**
  * Creates a transport that communicates with the MetaMask extension via Chrome's externally_connectable API
@@ -40,7 +41,6 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
   function handleMessage(msg: any) {
     // Handle notifications (messages without id)
     if (msg?.data?.id === null || msg?.data?.id === undefined) {
-      // No id => notification
       notifyCallbacks(msg.data);
     } else if (requestMap.has(msg.data.id)) {
       // Handle responses to requests
@@ -144,7 +144,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
 
       return new Promise((resolve, reject) => {
         requestMap.set(id, { resolve, reject });
-        currentChromePort.postMessage({ type: 'caip-x', data: requestPayload });
+        currentChromePort.postMessage({ type: REQUEST_CAIP, data: requestPayload });
       });
     },
     onNotification: (callback: (data: unknown) => void) => {
