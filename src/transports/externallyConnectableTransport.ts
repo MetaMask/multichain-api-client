@@ -1,5 +1,8 @@
 import { detectMetamaskExtensionIdOnInit } from '../helpers/metamaskExtensionId';
+import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from '../types/multichainApi';
+import type { RpcApi } from '../types/scopes';
 import type { Transport } from '../types/transport';
+import { REQUEST_CAIP } from './constants';
 
 /**
  * Creates a transport that communicates with the MetaMask extension via Chrome's externally_connectable API
@@ -22,7 +25,9 @@ import type { Transport } from '../types/transport';
 export function getExternallyConnectableTransport(params: { extensionId?: string } = {}): Transport {
   let { extensionId } = params;
   let chromePort: chrome.runtime.Port | undefined;
-  let requestId = 0;
+  let requestId = 1;
+  const requestMap: Map<number, { resolve: (value: any) => void; reject: (reason?: any) => void }> = new Map();
+
   /**
    * Storing notification callbacks.
    * If we detect a "notification" (a message without an id) coming from the extension or fallback, we'll call each callback in here.
@@ -30,18 +35,26 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
   const notificationCallbacks: Set<(data: unknown) => void> = new Set();
 
   /**
-   * If we get a message on the chrome port that doesn't have an ID,
-   * treat it as a notification or subscription update.
-   *
+   * Handle messages from the extension
    * @param msg
    */
-  function handleChromeMessage(msg: any) {
+  function handleMessage(msg: any) {
+    // Handle notifications (messages without id)
     if (msg?.data?.id === null || msg?.data?.id === undefined) {
-      // No id => notification
-      console.debug('[ChromeTransport] chrome notification:', msg);
       notifyCallbacks(msg.data);
+    } else if (requestMap.has(msg.data.id)) {
+      // Handle responses to requests
+      const { resolve, reject } = requestMap.get(msg.data.id) ?? {};
+      requestMap.delete(msg.data.id);
+
+      if (resolve && reject) {
+        if (msg.data.error) {
+          reject(new Error(msg.data.error.message));
+        } else {
+          resolve(msg.data.result);
+        }
+      }
     }
-    // otherwise should be handled in requestViaChrome listener - skipping
   }
 
   /**
@@ -57,13 +70,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
     }
   }
 
-  /* function removeNotificationListener(callback: (data: unknown) => void): void {
-    console.debug('[ExtensionProvider] Removing notification listener');
-    notificationCallbacks.delete(callback);
-  } */
-
   function removeAllNotificationListeners(): void {
-    console.debug('[ExtensionProvider] Removing all notification listeners');
     notificationCallbacks.clear();
   }
 
@@ -95,7 +102,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
         }
 
         // Listen to messages from the extension
-        chromePort.onMessage.addListener(handleChromeMessage);
+        chromePort.onMessage.addListener(handleMessage);
 
         return true;
       } catch (err) {
@@ -109,13 +116,20 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
           chromePort.disconnect();
           chromePort = undefined;
           removeAllNotificationListeners();
+          requestMap.clear();
         } catch (err) {
           console.error('[ChromeTransport] Error disconnecting chrome port:', err);
         }
       }
     },
     isConnected: () => chromePort !== undefined,
-    request: ({ method, params = {} }) => {
+    request: <T extends RpcApi, M extends MultichainApiMethod>({
+      method,
+      params = {},
+    }: {
+      method: M;
+      params?: MultichainApiParams<T, M>;
+    }): Promise<MultichainApiReturn<T, M>> => {
       const currentChromePort = chromePort;
       if (!currentChromePort) {
         throw new Error('Chrome port not connected');
@@ -129,27 +143,11 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
       };
 
       return new Promise((resolve, reject) => {
-        const handleMessage = (msg: any) => {
-          // Check if the message matches our request ID
-          if (msg?.data?.id === id) {
-            currentChromePort?.onMessage.removeListener(handleMessage);
-            // Check for error or result
-            if (msg.data.error) {
-              reject(new Error(msg.data.error.message));
-            } else {
-              resolve(msg.data.result);
-            }
-          }
-        };
-
-        currentChromePort.onMessage.addListener(handleMessage);
-
-        // Send it
-        currentChromePort.postMessage({ type: 'caip-x', data: requestPayload });
+        requestMap.set(id, { resolve, reject });
+        currentChromePort.postMessage({ type: REQUEST_CAIP, data: requestPayload });
       });
     },
     onNotification: (callback: (data: unknown) => void) => {
-      console.log('[ChromeTransport] Adding notification listener');
       notificationCallbacks.add(callback);
     },
   };
