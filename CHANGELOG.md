@@ -9,14 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0]
 
-### Uncategorized
+### Added
 
-- remove caip-x envelope for window postMessage transport ([#38](https://github.com/MetaMask/multichain-api-client/pull/38))
-- build(deps-dev): bump vite in the npm_and_yarn group across 1 directory ([#37](https://github.com/MetaMask/multichain-api-client/pull/37))
-- ci: enable doc ([#35](https://github.com/MetaMask/multichain-api-client/pull/35))
-- Move caip-x to a const
-- Refactor message handling to support a requestId of 0
-- Feat: Add window.postMessage transport
+- Add Firefox postMessage transport
 
 ## [0.1.1]
 
