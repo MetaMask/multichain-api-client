@@ -1,7 +1,6 @@
 import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from '../types/multichainApi';
 import type { RpcApi } from '../types/scopes';
 import type { Transport } from '../types/transport';
-import { REQUEST_CAIP } from './constants';
 
 const CONTENT_SCRIPT = 'metamask-contentscript';
 const INPAGE = 'metamask-inpage';
@@ -85,7 +84,7 @@ export function getWindowPostMessageTransport(): Transport {
           return;
         }
 
-        handleMessage(data.data.data);
+        handleMessage(data.data);
       };
 
       window.addEventListener('message', messageListener);
@@ -132,10 +131,7 @@ function _sendRequest(request: any) {
       target: CONTENT_SCRIPT,
       data: {
         name: MULTICHAIN_SUBSTREAM_NAME,
-        data: {
-          type: REQUEST_CAIP,
-          data: request,
-        },
+        data: request,
       },
     },
     location.origin,
