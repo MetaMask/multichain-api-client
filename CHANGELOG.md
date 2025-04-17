@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.0]
 
-### Uncategorized
+### Changed
 
-- replace caip-x with caip-348 ([#40](https://github.com/MetaMask/multichain-api-client/pull/40))
+- Replace `caip-x` with `caip-348` for externally_connectable transport ([#40](https://github.com/MetaMask/multichain-api-client/pull/40))
 
 ## [0.2.0]
 
