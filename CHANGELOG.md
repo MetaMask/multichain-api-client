@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0]
+
+### Added
+
+- Add Firefox postMessage transport ([#36](https://github.com/MetaMask/multichain-api-client/pull/36))
+
 ## [0.1.1]
 
 ### Fixed
@@ -19,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[Unreleased]: https://github.com/MetaMask/multichain-api-client/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/MetaMask/multichain-api-client/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/MetaMask/multichain-api-client/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/MetaMask/multichain-api-client/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/MetaMask/multichain-api-client/releases/tag/v0.1.0
