@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add Firefox postMessage transport
+- Add Firefox postMessage transport ([#36](https://github.com/MetaMask/multichain-api-client/pull/36))
 
 ## [0.1.1]
 
