@@ -1,1 +1,1 @@
-export const REQUEST_CAIP = 'caip-x';
+export const REQUEST_CAIP = 'caip-348';
