@@ -121,6 +121,9 @@ export function getWindowPostMessageTransport(): Transport {
 
     onNotification: (callback: (data: unknown) => void) => {
       notificationCallbacks.add(callback);
+      return () => {
+        notificationCallbacks.delete(callback);
+      };
     },
   };
 }

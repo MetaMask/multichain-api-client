@@ -59,8 +59,9 @@ export type MultichainApiClient<T extends RpcApi = DefaultRpcApi> = {
    * Registers a callback for notifications from the wallet
    *
    * @param callback - Function to call when a notification is received
+   * @returns A function to remove the callback
    */
-  onNotification: (callback: (data: unknown) => void) => void;
+  onNotification: (callback: (data: unknown) => void) => () => void;
 };
 
 // Multichain API Methods
