@@ -1,4 +1,4 @@
-import { detectMetamaskExtensionIdOnInit } from '../helpers/metamaskExtensionId';
+import { detectMetamaskExtensionId } from '../helpers/metamaskExtensionId';
 import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from '../types/multichainApi';
 import type { RpcApi } from '../types/scopes';
 import type { Transport } from '../types/transport';
@@ -78,12 +78,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
     connect: async () => {
       try {
         if (!extensionId) {
-          extensionId = await detectMetamaskExtensionIdOnInit();
-        }
-
-        if (!extensionId) {
-          console.error('[ChromeTransport] MetaMask extension not found');
-          return false;
+          extensionId = await detectMetamaskExtensionId();
         }
 
         chromePort = chrome.runtime.connect(extensionId);

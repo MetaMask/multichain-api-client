@@ -1,10 +1,7 @@
 import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from '../types/multichainApi';
 import type { RpcApi } from '../types/scopes';
 import type { Transport } from '../types/transport';
-
-const CONTENT_SCRIPT = 'metamask-contentscript';
-const INPAGE = 'metamask-inpage';
-const MULTICHAIN_SUBSTREAM_NAME = 'metamask-multichain-provider';
+import { CONTENT_SCRIPT, INPAGE, MULTICHAIN_SUBSTREAM_NAME } from './constants';
 
 /**
  * Creates a transport that communicates with the MetaMask extension via window.postMessage

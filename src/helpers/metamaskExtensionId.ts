@@ -1,38 +1,36 @@
-import type { MetaMaskInpageProvider } from '@metamask/providers';
+import { CONTENT_SCRIPT, INPAGE } from '../transports/constants';
+import { METAMASK_PROVIDER_STREAM_NAME } from '../transports/constants';
 
 /**
- * Detects the MetaMask extension ID on initialization
- *
- * WARNING:
- * - this function only works on the first page load, so most likely from an injected script.
- * - if you need to detect the extension ID after page load, use `detectMetamaskExtensionId` instead.
+ * Get the MetaMask extension ID by sending a metamask_getProviderState to the content script
  */
-export async function detectMetamaskExtensionIdOnInit(): Promise<string | undefined> {
-  return new Promise((resolve) => {
-    const messageHandler = ({ data }: { data: any }) => {
-      const extensionId = data?.data?.data?.result?.extensionId;
-      if (data?.data?.name === 'metamask-provider' && extensionId) {
-        window.removeEventListener('message', messageHandler);
-        // eslint-disable-next-line no-use-before-define
-        clearTimeout(timeoutId); // Clear the timeout when we succeed
-        resolve(extensionId);
+export async function detectMetamaskExtensionId(): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const messageHandler = (event: MessageEvent) => {
+      const { target, data } = event.data;
+      if (target === INPAGE && data?.name === METAMASK_PROVIDER_STREAM_NAME) {
+        const extensionId = data?.data?.result?.extensionId;
+        if (extensionId) {
+          resolve(extensionId);
+          window.removeEventListener('message', messageHandler);
+          clearTimeout(timeoutId);
+        }
       }
     };
 
-    window.addEventListener('message', messageHandler);
-
-    // Store timeout ID so we can clear it
     const timeoutId = setTimeout(() => {
       window.removeEventListener('message', messageHandler);
-      resolve(undefined);
+      reject(new Error('MetaMask extension not found'));
     }, 3000);
-  });
-}
 
-/**
- * Automatically detects MetaMask extension ID if available
- */
-export async function detectMetamaskExtensionId(provider: MetaMaskInpageProvider): Promise<string | undefined> {
-  const providerState = (await provider.request({ method: 'metamask_getProviderState' })) as { extensionId?: string };
-  return providerState?.extensionId;
+    window.addEventListener('message', messageHandler);
+
+    window.postMessage(
+      {
+        target: CONTENT_SCRIPT,
+        data: { name: METAMASK_PROVIDER_STREAM_NAME, data: { method: 'metamask_getProviderState' } },
+      },
+      location.origin,
+    );
+  });
 }
