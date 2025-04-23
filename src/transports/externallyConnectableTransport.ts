@@ -149,6 +149,9 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
     },
     onNotification: (callback: (data: unknown) => void) => {
       notificationCallbacks.add(callback);
+      return () => {
+        notificationCallbacks.delete(callback);
+      };
     },
   };
 }

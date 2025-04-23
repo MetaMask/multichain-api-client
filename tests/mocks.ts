@@ -29,7 +29,7 @@ export function getMockTransport(): Transport {
   const isConnected = vi.fn(() => true);
   const connect = vi.fn(() => Promise.resolve(true));
   const disconnect = vi.fn(() => Promise.resolve());
-  const onNotification = vi.fn(() => {});
+  const onNotification = vi.fn(() => () => {});
   const request = vi.fn(
     async <T extends DefaultRpcApi, M extends MultichainApiMethod>({
       method,
