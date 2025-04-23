@@ -8,7 +8,7 @@ export async function detectMetamaskExtensionId(): Promise<string> {
   return new Promise((resolve, reject) => {
     const messageHandler = (event: MessageEvent) => {
       const { target, data } = event.data;
-      if (target === INPAGE && data?.name === METAMASK_PROVIDER_STREAM_NAME) {
+      if (target === INPAGE && data?.name === METAMASK_PROVIDER_STREAM_NAME && event.origin === location.origin) {
         const extensionId = data?.data?.result?.extensionId;
         if (extensionId) {
           resolve(extensionId);

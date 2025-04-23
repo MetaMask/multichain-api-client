@@ -77,7 +77,7 @@ export function getWindowPostMessageTransport(): Transport {
       // Set up message listener
       messageListener = (event: MessageEvent) => {
         const { target, data } = event.data;
-        if (target !== INPAGE || data?.name !== MULTICHAIN_SUBSTREAM_NAME) {
+        if (target !== INPAGE || data?.name !== MULTICHAIN_SUBSTREAM_NAME || event.origin !== location.origin) {
           return;
         }
 
