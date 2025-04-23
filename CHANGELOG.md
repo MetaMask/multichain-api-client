@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.0]
 
-### Uncategorized
+### Changed
 
 - feat: get extensionId using window.postMessage ([#51](https://github.com/MetaMask/multichain-api-client/pull/51))
 
