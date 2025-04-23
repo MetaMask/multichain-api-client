@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0]
 
-### Uncategorized
+### Changed
 
-- build(deps-dev): bump @metamask/providers from 21.0.0 to 22.0.1 ([#48](https://github.com/MetaMask/multichain-api-client/pull/48))
-- feat: remove notification callback ([#49](https://github.com/MetaMask/multichain-api-client/pull/49))
+- Bump `@metamask/providers` from `21.0.0` to `22.0.1` ([#48](https://github.com/MetaMask/multichain-api-client/pull/48))
+- Add ability to unsubscribe from notifications ([#49](https://github.com/MetaMask/multichain-api-client/pull/49))
 
 ## [0.3.0]
 
