@@ -52,7 +52,7 @@
     "@biomejs/biome": "1.9.4",
     "@lavamoat/allow-scripts": "^3.0.4",
     "@lavamoat/preinstall-always-fail": "^2.0.0",
-    "@metamask/auto-changelog": "^4.0.0",
+    "@metamask/auto-changelog": "^5.0.2",
     "@ts-bridge/cli": "^0.6.3",
     "@types/chrome": "^0.0.307",
     "@vitest/coverage-istanbul": "^3.0.7",
