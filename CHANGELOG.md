@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.0]
 
-### Uncategorized
+### Changed
 
 - Make getMultichainClient synchronous ([#55](https://github.com/MetaMask/multichain-api-client/pull/55))
 
