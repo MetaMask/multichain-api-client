@@ -4,12 +4,36 @@ import type { SessionData } from './types/session';
 import type { Transport } from './types/transport';
 
 /**
- * Creates a base client with all the multichain API methods
+ * Creates a Multichain API client with the specified transport
  *
- * @param transport - The transport layer to use for communication with the wallet
- * @returns A MultichainApiClient instance with all the API methods
+ * @param options - Configuration options for the client
+ * @param options.transport - The transport layer to use for communication with the wallet
+ * @returns A promise that resolves to a MultichainApiClient instance
+ *
+ * @example
+ * ```typescript
+ * const client = getMultichainClient({
+ *   transport: getDefaultTransport()
+ * });
+ *
+ * // Create a session with optional scopes
+ * const session = await client.createSession({
+ *   optionalScopes: { 'eip155:1': { methods: ['eth_sendTransaction'] } }
+ * });
+ *
+ * // Invoke a method
+ * const result = await client.invokeMethod({
+ *   scope: 'eip155:1',
+ *   request: {
+ *     method: 'eth_sendTransaction',
+ *     params: { to: '0x1234...', value: '0x0' }
+ *   }
+ * });
+ * ```
  */
-function createBaseClient<T extends RpcApi>(transport: Transport): MultichainApiClient<T> {
+export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
+  transport,
+}: { transport: Transport }): MultichainApiClient<T> {
   async function ensureConnected() {
     if (!transport.isConnected()) {
       await transport.connect();
@@ -47,44 +71,10 @@ function createBaseClient<T extends RpcApi>(transport: Transport): MultichainApi
       return await transport.request({ method: 'wallet_invokeMethod', params });
     },
     extendsRpcApi: <U extends RpcApi>(): MultichainApiClient<T & U> => {
-      return createBaseClient<T & U>(transport);
+      return getMultichainClient<T & U>({ transport });
     },
     onNotification: (callback: (data: unknown) => void) => {
       return transport.onNotification(callback);
     },
   };
-}
-
-/**
- * Creates a Multichain API client with the specified transport
- *
- * @param options - Configuration options for the client
- * @param options.transport - The transport layer to use for communication with the wallet
- * @returns A promise that resolves to a MultichainApiClient instance
- *
- * @example
- * ```typescript
- * const client = getMultichainClient({
- *   transport: getDefaultTransport()
- * });
- *
- * // Create a session with optional scopes
- * const session = await client.createSession({
- *   optionalScopes: { 'eip155:1': { methods: ['eth_sendTransaction'] } }
- * });
- *
- * // Invoke a method
- * const result = await client.invokeMethod({
- *   scope: 'eip155:1',
- *   request: {
- *     method: 'eth_sendTransaction',
- *     params: { to: '0x1234...', value: '0x0' }
- *   }
- * });
- * ```
- */
-export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
-  transport,
-}: { transport: Transport }): MultichainApiClient<T> {
-  return createBaseClient<T>(transport);
 }
