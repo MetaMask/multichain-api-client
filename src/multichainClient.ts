@@ -16,7 +16,7 @@ function createBaseClient<T extends RpcApi>(transport: Transport): MultichainApi
     }
   }
 
-  // @TODO: why do we connect by default here?
+  // Try to connect to the transport on client creation to reduce latency when first used
   void ensureConnected();
 
   return {
@@ -34,8 +34,11 @@ function createBaseClient<T extends RpcApi>(transport: Transport): MultichainApi
       });
     },
     revokeSession: async () => {
-      await transport.request({ method: 'wallet_revokeSession' });
-      await transport.disconnect();
+      try {
+        await transport.request({ method: 'wallet_revokeSession' });
+      } finally {
+        await transport.disconnect();
+      }
     },
     invokeMethod: async <S extends Scope<T>, M extends MethodName<T, S>>(
       params: InvokeMethodParams<T, S, M>,
@@ -61,7 +64,7 @@ function createBaseClient<T extends RpcApi>(transport: Transport): MultichainApi
  *
  * @example
  * ```typescript
- * const client = await getMultichainClient({
+ * const client = getMultichainClient({
  *   transport: getDefaultTransport()
  * });
  *
@@ -80,9 +83,8 @@ function createBaseClient<T extends RpcApi>(transport: Transport): MultichainApi
  * });
  * ```
  */
-export async function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
+export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
   transport,
-}: { transport: Transport }): Promise<MultichainApiClient<T>> {
-  await transport.connect();
+}: { transport: Transport }): MultichainApiClient<T> {
   return createBaseClient<T>(transport);
 }
