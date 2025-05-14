@@ -5,7 +5,7 @@ import { getMultichainClient } from './multichainClient';
 const mockTransport = getMockTransport();
 describe('getMultichainClient', () => {
   it('should create a client with all required methods', async () => {
-    const client = await getMultichainClient({ transport: mockTransport });
+    const client = getMultichainClient({ transport: mockTransport });
 
     expect(client).toBeDefined();
     expect(client.createSession).toBeDefined();
@@ -15,7 +15,7 @@ describe('getMultichainClient', () => {
   });
 
   it('should create a session successfully', async () => {
-    const client = await getMultichainClient({ transport: mockTransport });
+    const client = getMultichainClient({ transport: mockTransport });
     const params = { optionalScopes: mockScope };
     const result = await client.createSession(params);
 
@@ -27,7 +27,7 @@ describe('getMultichainClient', () => {
   });
 
   it('should get session successfully', async () => {
-    const client = await getMultichainClient({ transport: mockTransport });
+    const client = getMultichainClient({ transport: mockTransport });
     const result = await client.getSession();
 
     expect(result).toEqual(mockSession);
@@ -38,7 +38,7 @@ describe('getMultichainClient', () => {
 
   describe('revokeSession', () => {
     it('should revoke session successfully', async () => {
-      const client = await getMultichainClient({ transport: mockTransport });
+      const client = getMultichainClient({ transport: mockTransport });
       await client.revokeSession();
 
       expect(mockTransport.request).toHaveBeenCalledWith({
@@ -47,7 +47,7 @@ describe('getMultichainClient', () => {
     });
 
     it('should disconnect transport after revoking session', async () => {
-      const client = await getMultichainClient({ transport: mockTransport });
+      const client = getMultichainClient({ transport: mockTransport });
       await client.revokeSession();
 
       expect(mockTransport.disconnect).toHaveBeenCalled();
@@ -55,7 +55,7 @@ describe('getMultichainClient', () => {
   });
 
   it('should invoke methods successfully', async () => {
-    const client = await getMultichainClient({ transport: mockTransport });
+    const client = getMultichainClient({ transport: mockTransport });
 
     // Test signAndSendTransaction
     const signAndSendResult = await client.invokeMethod({
@@ -112,7 +112,7 @@ describe('getMultichainClient', () => {
       isConnected: mockIsConnected,
     };
 
-    const client = await getMultichainClient({ transport });
+    const client = getMultichainClient({ transport });
     await client.getSession();
 
     expect(mockIsConnected).toHaveBeenCalled();

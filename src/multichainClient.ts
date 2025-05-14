@@ -4,55 +4,6 @@ import type { SessionData } from './types/session';
 import type { Transport } from './types/transport';
 
 /**
- * Creates a base client with all the multichain API methods
- *
- * @param transport - The transport layer to use for communication with the wallet
- * @returns A MultichainApiClient instance with all the API methods
- */
-function createBaseClient<T extends RpcApi>(transport: Transport): MultichainApiClient<T> {
-  async function ensureConnected() {
-    if (!transport.isConnected()) {
-      await transport.connect();
-    }
-  }
-
-  // @TODO: why do we connect by default here?
-  void ensureConnected();
-
-  return {
-    createSession: async (params: CreateSessionParams<T>): Promise<SessionData> => {
-      await ensureConnected();
-      return await transport.request({
-        method: 'wallet_createSession',
-        params,
-      });
-    },
-    getSession: async (): Promise<SessionData | undefined> => {
-      await ensureConnected();
-      return await transport.request({
-        method: 'wallet_getSession',
-      });
-    },
-    revokeSession: async () => {
-      await transport.request({ method: 'wallet_revokeSession' });
-      await transport.disconnect();
-    },
-    invokeMethod: async <S extends Scope<T>, M extends MethodName<T, S>>(
-      params: InvokeMethodParams<T, S, M>,
-    ): MethodReturn<T, S, M> => {
-      await ensureConnected();
-      return await transport.request({ method: 'wallet_invokeMethod', params });
-    },
-    extendsRpcApi: <U extends RpcApi>(): MultichainApiClient<T & U> => {
-      return createBaseClient<T & U>(transport);
-    },
-    onNotification: (callback: (data: unknown) => void) => {
-      return transport.onNotification(callback);
-    },
-  };
-}
-
-/**
  * Creates a Multichain API client with the specified transport
  *
  * @param options - Configuration options for the client
@@ -61,7 +12,7 @@ function createBaseClient<T extends RpcApi>(transport: Transport): MultichainApi
  *
  * @example
  * ```typescript
- * const client = await getMultichainClient({
+ * const client = getMultichainClient({
  *   transport: getDefaultTransport()
  * });
  *
@@ -80,9 +31,48 @@ function createBaseClient<T extends RpcApi>(transport: Transport): MultichainApi
  * });
  * ```
  */
-export async function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
+export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
   transport,
-}: { transport: Transport }): Promise<MultichainApiClient<T>> {
-  await transport.connect();
-  return createBaseClient<T>(transport);
+}: { transport: Transport }): MultichainApiClient<T> {
+  async function ensureConnected() {
+    if (!transport.isConnected()) {
+      await transport.connect();
+    }
+  }
+
+  // Try to connect to the transport on client creation to reduce latency when first used
+  void ensureConnected();
+
+  return {
+    createSession: async (params: CreateSessionParams<T>): Promise<SessionData> => {
+      await ensureConnected();
+      return await transport.request({
+        method: 'wallet_createSession',
+        params,
+      });
+    },
+    getSession: async (): Promise<SessionData | undefined> => {
+      await ensureConnected();
+      return await transport.request({
+        method: 'wallet_getSession',
+      });
+    },
+    revokeSession: async () => {
+      await ensureConnected();
+      await transport.request({ method: 'wallet_revokeSession' });
+      await transport.disconnect();
+    },
+    invokeMethod: async <S extends Scope<T>, M extends MethodName<T, S>>(
+      params: InvokeMethodParams<T, S, M>,
+    ): MethodReturn<T, S, M> => {
+      await ensureConnected();
+      return await transport.request({ method: 'wallet_invokeMethod', params });
+    },
+    extendsRpcApi: <U extends RpcApi>(): MultichainApiClient<T & U> => {
+      return getMultichainClient<T & U>({ transport });
+    },
+    onNotification: (callback: (data: unknown) => void) => {
+      return transport.onNotification(callback);
+    },
+  };
 }
