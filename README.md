@@ -15,7 +15,7 @@ or
 ```typescript
 import { getMultichainClient, getDefaultTransport } from '@metamask/multichain-api-client';
 
-const client = getMultichainClient({ transport: getDefaultTransport() });
+const client = await getMultichainClient({ transport: getDefaultTransport() });
 const session = await client.createSession({ requiredScopes: ['eip155:1'] });
 
 const result = await client.invokeMethod({
