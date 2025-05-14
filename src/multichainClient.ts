@@ -58,11 +58,9 @@ export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
       });
     },
     revokeSession: async () => {
-      try {
-        await transport.request({ method: 'wallet_revokeSession' });
-      } finally {
-        await transport.disconnect();
-      }
+      await ensureConnected();
+      await transport.request({ method: 'wallet_revokeSession' });
+      await transport.disconnect();
     },
     invokeMethod: async <S extends Scope<T>, M extends MethodName<T, S>>(
       params: InvokeMethodParams<T, S, M>,
