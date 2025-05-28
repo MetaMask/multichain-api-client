@@ -65,7 +65,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
       try {
         cb(data);
       } catch (err) {
-        console.error('[ExtensionProvider] Error in notification callback:', err);
+        console.log('[ChromeTransport] notifyCallbacks error:', err);
       }
     }
   }
@@ -86,7 +86,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
         let isActive = true;
         chromePort.onDisconnect.addListener(() => {
           isActive = false;
-          console.warn('[ChromeTransport] chrome runtime disconnected');
+          console.log('[ChromeTransport] chromePort disconnected');
           chromePort = undefined;
         });
 
@@ -101,7 +101,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
 
         return true;
       } catch (err) {
-        console.error('[ChromeTransport] connectChrome error:', err);
+        console.log('[ChromeTransport] connect error:', err);
         return false;
       }
     },
@@ -113,7 +113,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
           removeAllNotificationListeners();
           requestMap.clear();
         } catch (err) {
-          console.error('[ChromeTransport] Error disconnecting chrome port:', err);
+          console.log('[ChromeTransport] disconnect error:', err);
         }
       }
     },
