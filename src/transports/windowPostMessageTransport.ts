@@ -34,7 +34,7 @@ export function getWindowPostMessageTransport(): Transport {
       try {
         cb(data);
       } catch (err) {
-        console.error('[WindowPostMessageTransport] Error in notification callback:', err);
+        console.log('[WindowPostMessageTransport] notifyCallbacks error:', err);
       }
     }
   }
