@@ -16,7 +16,7 @@ export type Transport = {
    *
    * @returns A promise that resolves to true if the connection was successful, false otherwise
    */
-  connect: () => Promise<boolean>;
+  connect: () => Promise<void>;
 
   /**
    * Disconnects from the wallet

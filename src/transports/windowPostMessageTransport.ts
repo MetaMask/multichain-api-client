@@ -1,3 +1,4 @@
+import { MultichainApiError, TransportError } from '../types/errors';
 import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from '../types/multichainApi';
 import type { RpcApi } from '../types/scopes';
 import type { Transport } from '../types/transport';
@@ -49,12 +50,25 @@ export function getWindowPostMessageTransport(): Transport {
 
       if (resolve && reject) {
         if (message.error) {
-          reject(new Error(message.error.message));
+          reject(new MultichainApiError(message.error));
         } else {
           resolve(message.result);
         }
       }
     }
+  }
+
+  function sendRequest(request: any) {
+    window.postMessage(
+      {
+        target: CONTENT_SCRIPT,
+        data: {
+          name: MULTICHAIN_SUBSTREAM_NAME,
+          data: request,
+        },
+      },
+      location.origin,
+    );
   }
 
   async function disconnect() {
@@ -70,6 +84,7 @@ export function getWindowPostMessageTransport(): Transport {
 
   return {
     connect: async () => {
+      // If we're already connected, reconnect
       if (isConnected()) {
         await disconnect();
       }
@@ -85,8 +100,6 @@ export function getWindowPostMessageTransport(): Transport {
       };
 
       window.addEventListener('message', messageListener);
-
-      return true;
     },
 
     disconnect,
@@ -99,7 +112,7 @@ export function getWindowPostMessageTransport(): Transport {
       params?: MultichainApiParams<T, M>;
     }): Promise<MultichainApiReturn<T, M>> => {
       if (!isConnected()) {
-        throw new Error('Not connected to any extension. Call connect() first.');
+        throw new TransportError('Transport not connected');
       }
 
       const id = requestId++;
@@ -112,7 +125,7 @@ export function getWindowPostMessageTransport(): Transport {
 
       return new Promise((resolve, reject) => {
         requestMap.set(id, { resolve, reject });
-        _sendRequest(request);
+        sendRequest(request);
       });
     },
 
@@ -123,17 +136,4 @@ export function getWindowPostMessageTransport(): Transport {
       };
     },
   };
-}
-
-function _sendRequest(request: any) {
-  window.postMessage(
-    {
-      target: CONTENT_SCRIPT,
-      data: {
-        name: MULTICHAIN_SUBSTREAM_NAME,
-        data: request,
-      },
-    },
-    location.origin,
-  );
 }
