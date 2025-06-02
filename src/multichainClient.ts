@@ -1,4 +1,10 @@
-import type { CreateSessionParams, InvokeMethodParams, MultichainApiClient } from './types/multichainApi';
+import { MultichainApiError } from './types/errors';
+import type {
+  CreateSessionParams,
+  InvokeMethodParams,
+  MultichainApiClient,
+  MultichainApiMethod,
+} from './types/multichainApi';
 import type { DefaultRpcApi, MethodName, MethodReturn, RpcApi, Scope } from './types/scopes';
 import type { SessionData } from './types/session';
 import type { Transport } from './types/transport';
@@ -66,7 +72,7 @@ export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
       params: InvokeMethodParams<T, S, M>,
     ): MethodReturn<T, S, M> => {
       await ensureConnected();
-      return await transport.request({ method: 'wallet_invokeMethod', params });
+      return await request(transport, 'wallet_invokeMethod', params);
     },
     extendsRpcApi: <U extends RpcApi>(): MultichainApiClient<T & U> => {
       return getMultichainClient<T & U>({ transport });
@@ -75,4 +81,21 @@ export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
       return transport.onNotification(callback);
     },
   };
+}
+
+async function request<T extends RpcApi, S extends Scope<T>, M extends MultichainApiMethod>(
+  transport: Transport,
+  method: M,
+  params: InvokeMethodParams<T, S, M>,
+): Promise<MethodReturn<T, S, M>> {
+  const res = await transport.request<
+    { method: M; params: InvokeMethodParams<T, S, M> },
+    { data: { result: MethodReturn<T, S, M>; error?: string } }
+  >({ method, params });
+
+  if (res.data.error) {
+    throw new MultichainApiError(res.data.error);
+  }
+
+  return res.data.result;
 }
