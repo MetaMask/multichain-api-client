@@ -1,6 +1,4 @@
-import { MultichainApiError, TransportError } from '../types/errors';
-import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from '../types/multichainApi';
-import type { RpcApi } from '../types/scopes';
+import { TransportError } from '../types/errors';
 import type { Transport } from '../types/transport';
 import { CONTENT_SCRIPT, INPAGE, MULTICHAIN_SUBSTREAM_NAME } from './constants';
 
@@ -45,15 +43,11 @@ export function getWindowPostMessageTransport(): Transport {
       // No id => notification
       notifyCallbacks(message);
     } else if (requestMap.has(message.id)) {
-      const { resolve, reject } = requestMap.get(message.id) ?? {};
+      const { resolve } = requestMap.get(message.id) ?? {};
       requestMap.delete(message.id);
 
-      if (resolve && reject) {
-        if (message.error) {
-          reject(new MultichainApiError(message.error));
-        } else {
-          resolve(message.result);
-        }
+      if (resolve) {
+        resolve(message);
       }
     }
   }
@@ -104,13 +98,7 @@ export function getWindowPostMessageTransport(): Transport {
 
     disconnect,
     isConnected,
-    request: <T extends RpcApi, M extends MultichainApiMethod>({
-      method,
-      params = {},
-    }: {
-      method: M;
-      params?: MultichainApiParams<T, M>;
-    }): Promise<MultichainApiReturn<T, M>> => {
+    request: <ParamsType extends Object, ReturnType extends Object>(params: ParamsType): Promise<ReturnType> => {
       if (!isConnected()) {
         throw new TransportError('Transport not connected');
       }
@@ -119,8 +107,7 @@ export function getWindowPostMessageTransport(): Transport {
       const request = {
         jsonrpc: '2.0' as const,
         id,
-        method,
-        params,
+        ...params,
       };
 
       return new Promise((resolve, reject) => {

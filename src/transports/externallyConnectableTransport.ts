@@ -1,7 +1,5 @@
 import { detectMetamaskExtensionId } from '../helpers/metamaskExtensionId';
-import { MultichainApiError, TransportError } from '../types/errors';
-import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from '../types/multichainApi';
-import type { RpcApi } from '../types/scopes';
+import { TransportError } from '../types/errors';
 import type { Transport } from '../types/transport';
 import { REQUEST_CAIP } from './constants';
 
@@ -49,11 +47,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
       requestMap.delete(msg.data.id);
 
       if (resolve && reject) {
-        if (msg.data.error) {
-          reject(new MultichainApiError(msg.data.error));
-        } else {
-          resolve(msg.data.result);
-        }
+        resolve(msg);
       }
     }
   }
@@ -119,13 +113,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
       }
     },
     isConnected: () => chromePort !== undefined,
-    request: <T extends RpcApi, M extends MultichainApiMethod>({
-      method,
-      params = {},
-    }: {
-      method: M;
-      params?: MultichainApiParams<T, M>;
-    }): Promise<MultichainApiReturn<T, M>> => {
+    request: <ParamsType extends Object, ReturnType extends Object>(params: ParamsType): Promise<ReturnType> => {
       const currentChromePort = chromePort;
       if (!currentChromePort) {
         throw new TransportError('Chrome port not connected');
@@ -134,8 +122,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
       const requestPayload = {
         id,
         jsonrpc: '2.0',
-        method,
-        params,
+        ...params,
       };
 
       return new Promise((resolve, reject) => {

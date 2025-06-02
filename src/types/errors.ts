@@ -1,5 +1,5 @@
 export class MultichainApiError extends Error {
-  constructor(error: { message: string; code?: number; stack?: string }) {
+  constructor(error: { message?: string; code?: number; stack?: string }) {
     super(error.message);
     this.name = this.constructor.name;
     this.cause = error;

@@ -1,4 +1,12 @@
-import type { CreateSessionParams, InvokeMethodParams, MultichainApiClient } from './types/multichainApi';
+import { MultichainApiError } from './types/errors';
+import type {
+  CreateSessionParams,
+  InvokeMethodParams,
+  MultichainApiClient,
+  MultichainApiMethod,
+  MultichainApiParams,
+  MultichainApiReturn,
+} from './types/multichainApi';
 import type { DefaultRpcApi, MethodName, MethodReturn, RpcApi, Scope } from './types/scopes';
 import type { SessionData } from './types/session';
 import type { Transport } from './types/transport';
@@ -46,27 +54,22 @@ export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
   return {
     createSession: async (params: CreateSessionParams<T>): Promise<SessionData> => {
       await ensureConnected();
-      return await transport.request({
-        method: 'wallet_createSession',
-        params,
-      });
+      return await request({ transport, method: 'wallet_createSession', params });
     },
     getSession: async (): Promise<SessionData | undefined> => {
       await ensureConnected();
-      return await transport.request({
-        method: 'wallet_getSession',
-      });
+      return await request({ transport, method: 'wallet_getSession' });
     },
     revokeSession: async () => {
       await ensureConnected();
-      await transport.request({ method: 'wallet_revokeSession' });
+      await request({ transport, method: 'wallet_revokeSession' });
       await transport.disconnect();
     },
     invokeMethod: async <S extends Scope<T>, M extends MethodName<T, S>>(
       params: InvokeMethodParams<T, S, M>,
     ): MethodReturn<T, S, M> => {
       await ensureConnected();
-      return await transport.request({ method: 'wallet_invokeMethod', params });
+      return await request({ transport, method: 'wallet_invokeMethod', params });
     },
     extendsRpcApi: <U extends RpcApi>(): MultichainApiClient<T & U> => {
       return getMultichainClient<T & U>({ transport });
@@ -75,4 +78,25 @@ export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
       return transport.onNotification(callback);
     },
   };
+}
+
+async function request<T extends RpcApi, M extends MultichainApiMethod>({
+  transport,
+  method,
+  params,
+}: {
+  transport: Transport;
+  method: M;
+  params?: MultichainApiParams<T, M>;
+}): Promise<MultichainApiReturn<T, M>> {
+  const res = await transport.request<
+    { method: M; params: MultichainApiParams<T, M> },
+    { data: { result: MultichainApiReturn<T, M>; error?: { message: string; code: number; stack: string } } }
+  >({ method, params });
+
+  if (res.data?.error) {
+    throw new MultichainApiError(res.data.error);
+  }
+
+  return res.data.result;
 }
