@@ -25,7 +25,7 @@ function getDefaultTransport(params: { extensionId?: string } = {}): Transport {
   return isChrome ? getExternallyConnectableTransport(params) : getWindowPostMessageTransport();
 }
 
-export { getMultichainClient, getDefaultTransport };
+export { getMultichainClient, getDefaultTransport, getExternallyConnectableTransport, getWindowPostMessageTransport };
 
 export type * from './types/transport';
 export type * from './types/session';
