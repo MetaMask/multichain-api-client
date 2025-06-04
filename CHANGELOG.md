@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1]
+
+### Uncategorized
+
+- fix: export transport getters from index.ts to bypass automatic detection ([#59](https://github.com/MetaMask/multichain-api-client/pull/59))
+- build(deps-dev): bump vite in the npm_and_yarn group across 1 directory ([#53](https://github.com/MetaMask/multichain-api-client/pull/53))
+- build(deps-dev): bump @metamask/auto-changelog from 4.1.0 to 5.0.2 ([#54](https://github.com/MetaMask/multichain-api-client/pull/54))
+- fix: remove console.error/warn ([#57](https://github.com/MetaMask/multichain-api-client/pull/57))
+
 ## [0.6.0]
 
 ### Changed
@@ -50,7 +59,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[Unreleased]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/MetaMask/multichain-api-client/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/MetaMask/multichain-api-client/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/MetaMask/multichain-api-client/compare/v0.3.0...v0.4.0
