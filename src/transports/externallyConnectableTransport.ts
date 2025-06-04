@@ -1,6 +1,5 @@
 import { detectMetamaskExtensionId } from '../helpers/metamaskExtensionId';
-import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from '../types/multichainApi';
-import type { RpcApi } from '../types/scopes';
+import { MultichainApiError, TransportError } from '../types/errors';
 import type { Transport } from '../types/transport';
 import { REQUEST_CAIP } from './constants';
 
@@ -49,7 +48,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
 
       if (resolve && reject) {
         if (msg.data.error) {
-          reject(new Error(msg.data.error.message));
+          reject(new MultichainApiError(msg.data.error));
         } else {
           resolve(msg.data.result);
         }
@@ -85,24 +84,21 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
 
         let isActive = true;
         chromePort.onDisconnect.addListener(() => {
-          isActive = false;
           console.log('[ChromeTransport] chromePort disconnected');
           chromePort = undefined;
+          isActive = false;
         });
 
         // let a tick for onDisconnect
         await new Promise((resolve) => setTimeout(resolve, 10));
         if (!isActive) {
-          return false;
+          throw new Error(`No extension found with id: ${extensionId}`);
         }
 
         // Listen to messages from the extension
         chromePort.onMessage.addListener(handleMessage);
-
-        return true;
       } catch (err) {
-        console.log('[ChromeTransport] connect error:', err);
-        return false;
+        throw new TransportError('Failed to connect to MetaMask', err);
       }
     },
     disconnect: async () => {
@@ -118,23 +114,16 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
       }
     },
     isConnected: () => chromePort !== undefined,
-    request: <T extends RpcApi, M extends MultichainApiMethod>({
-      method,
-      params = {},
-    }: {
-      method: M;
-      params?: MultichainApiParams<T, M>;
-    }): Promise<MultichainApiReturn<T, M>> => {
+    request: <ParamsType extends Object, ReturnType extends Object>(params: ParamsType): Promise<ReturnType> => {
       const currentChromePort = chromePort;
       if (!currentChromePort) {
-        throw new Error('Chrome port not connected');
+        throw new TransportError('Chrome port not connected');
       }
       const id = requestId++;
       const requestPayload = {
         id,
         jsonrpc: '2.0',
-        method,
-        params,
+        ...params,
       };
 
       return new Promise((resolve, reject) => {

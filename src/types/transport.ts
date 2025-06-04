@@ -1,6 +1,3 @@
-import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from './multichainApi';
-import type { RpcApi } from './scopes';
-
 /**
  * Interface for transport layer that handles communication with the wallet
  *
@@ -16,7 +13,7 @@ export type Transport = {
    *
    * @returns A promise that resolves to true if the connection was successful, false otherwise
    */
-  connect: () => Promise<boolean>;
+  connect: () => Promise<void>;
 
   /**
    * Disconnects from the wallet
@@ -40,10 +37,7 @@ export type Transport = {
    * @param params.params - The parameters for the method
    * @returns A promise that resolves to the method return value
    */
-  request: <T extends RpcApi, M extends MultichainApiMethod>(params: {
-    method: M;
-    params?: MultichainApiParams<T, M>;
-  }) => Promise<MultichainApiReturn<T, M>>;
+  request: <ParamsType extends Object, ReturnType extends Object>(params: ParamsType) => Promise<ReturnType>;
 
   /**
    * Registers a callback for notifications from the wallet
