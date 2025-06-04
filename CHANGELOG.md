@@ -9,11 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.1]
 
-### Uncategorized
+### Changed
 
 - fix: export transport getters from index.ts to bypass automatic detection ([#59](https://github.com/MetaMask/multichain-api-client/pull/59))
-- build(deps-dev): bump vite in the npm_and_yarn group across 1 directory ([#53](https://github.com/MetaMask/multichain-api-client/pull/53))
-- build(deps-dev): bump @metamask/auto-changelog from 4.1.0 to 5.0.2 ([#54](https://github.com/MetaMask/multichain-api-client/pull/54))
 - fix: remove console.error/warn ([#57](https://github.com/MetaMask/multichain-api-client/pull/57))
 
 ## [0.6.0]
