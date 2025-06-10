@@ -81,10 +81,10 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
           extensionId = await detectMetamaskExtensionId();
         }
 
-        chromePort = chrome.runtime.connect(extensionId);
+        const pendingPort = chrome.runtime.connect(extensionId);
 
         let isActive = true;
-        chromePort.onDisconnect.addListener(() => {
+        pendingPort.onDisconnect.addListener(() => {
           isActive = false;
           console.log('[ChromeTransport] chromePort disconnected');
           chromePort = undefined;
@@ -97,8 +97,10 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
         }
 
         // Listen to messages from the extension
-        chromePort.onMessage.addListener(handleMessage);
+        pendingPort.onMessage.addListener(handleMessage);
 
+        // Assign the port at the end to avoid race conditions
+        chromePort = pendingPort;
         return true;
       } catch (err) {
         console.log('[ChromeTransport] connect error:', err);
