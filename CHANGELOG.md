@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.2]
 
-### Uncategorized
+### Fixed
 
 - fix: avoid race conditions by using a pending port for chrome.runtime.connect ([#61](https://github.com/MetaMask/multichain-api-client/pull/61))
 
