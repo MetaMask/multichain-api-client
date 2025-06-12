@@ -1,5 +1,4 @@
-import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from '../types/multichainApi';
-import type { RpcApi } from '../types/scopes';
+import { TransportError } from '../types/errors';
 import type { Transport } from '../types/transport';
 import { CONTENT_SCRIPT, INPAGE, MULTICHAIN_SUBSTREAM_NAME } from './constants';
 
@@ -44,17 +43,26 @@ export function getWindowPostMessageTransport(): Transport {
       // No id => notification
       notifyCallbacks(message);
     } else if (requestMap.has(message.id)) {
-      const { resolve, reject } = requestMap.get(message.id) ?? {};
+      const { resolve } = requestMap.get(message.id) ?? {};
       requestMap.delete(message.id);
 
-      if (resolve && reject) {
-        if (message.error) {
-          reject(new Error(message.error.message));
-        } else {
-          resolve(message.result);
-        }
+      if (resolve) {
+        resolve(message);
       }
     }
+  }
+
+  function sendRequest(request: any) {
+    window.postMessage(
+      {
+        target: CONTENT_SCRIPT,
+        data: {
+          name: MULTICHAIN_SUBSTREAM_NAME,
+          data: request,
+        },
+      },
+      location.origin,
+    );
   }
 
   async function disconnect() {
@@ -70,6 +78,7 @@ export function getWindowPostMessageTransport(): Transport {
 
   return {
     connect: async () => {
+      // If we're already connected, reconnect
       if (isConnected()) {
         await disconnect();
       }
@@ -85,34 +94,25 @@ export function getWindowPostMessageTransport(): Transport {
       };
 
       window.addEventListener('message', messageListener);
-
-      return true;
     },
 
     disconnect,
     isConnected,
-    request: <T extends RpcApi, M extends MultichainApiMethod>({
-      method,
-      params = {},
-    }: {
-      method: M;
-      params?: MultichainApiParams<T, M>;
-    }): Promise<MultichainApiReturn<T, M>> => {
+    request: <ParamsType extends Object, ReturnType extends Object>(params: ParamsType): Promise<ReturnType> => {
       if (!isConnected()) {
-        throw new Error('Not connected to any extension. Call connect() first.');
+        throw new TransportError('Transport not connected');
       }
 
       const id = requestId++;
       const request = {
         jsonrpc: '2.0' as const,
         id,
-        method,
-        params,
+        ...params,
       };
 
       return new Promise((resolve, reject) => {
         requestMap.set(id, { resolve, reject });
-        _sendRequest(request);
+        sendRequest(request);
       });
     },
 
@@ -123,17 +123,4 @@ export function getWindowPostMessageTransport(): Transport {
       };
     },
   };
-}
-
-function _sendRequest(request: any) {
-  window.postMessage(
-    {
-      target: CONTENT_SCRIPT,
-      data: {
-        name: MULTICHAIN_SUBSTREAM_NAME,
-        data: request,
-      },
-    },
-    location.origin,
-  );
 }
