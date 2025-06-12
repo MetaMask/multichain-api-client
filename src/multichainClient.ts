@@ -9,7 +9,7 @@ import type {
 } from './types/multichainApi';
 import type { DefaultRpcApi, MethodName, MethodReturn, RpcApi, Scope } from './types/scopes';
 import type { SessionData } from './types/session';
-import type { Transport } from './types/transport';
+import type { Transport, TransportRequest, TransportResponse } from './types/transport';
 
 /**
  * Creates a Multichain API client with the specified transport
@@ -90,8 +90,8 @@ async function request<T extends RpcApi, M extends MultichainApiMethod>({
   params?: MultichainApiParams<T, M>;
 }): Promise<MultichainApiReturn<T, M>> {
   const res = await transport.request<
-    { method: M; params: MultichainApiParams<T, M> },
-    { data: { result: MultichainApiReturn<T, M>; error?: { message: string; code: number; stack: string } } }
+    TransportRequest<M, MultichainApiParams<T, M>>,
+    TransportResponse<MultichainApiReturn<T, M>>
   >({ method, params });
 
   if (res.data?.error) {

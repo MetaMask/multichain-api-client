@@ -32,12 +32,14 @@ export type Transport = {
   /**
    * Sends a request to the wallet
    *
-   * @param params - Request parameters
-   * @param params.method - The method to call
-   * @param params.params - The parameters for the method
-   * @returns A promise that resolves to the method return value
+   * @template TRequest - The request type containing method and params
+   * @template TResponse - The expected response type
+   * @param request - Request object with method and optional params
+   * @returns A promise that resolves to the response
    */
-  request: <ParamsType extends Object, ReturnType extends Object>(params: ParamsType) => Promise<ReturnType>;
+  request: <TRequest extends TransportRequest, TResponse extends TransportResponse>(
+    request: TRequest,
+  ) => Promise<TResponse>;
 
   /**
    * Registers a callback for notifications from the wallet
@@ -46,4 +48,26 @@ export type Transport = {
    * @returns A function to remove the callback
    */
   onNotification: (callback: (data: unknown) => void) => () => void;
+};
+
+/**
+ * Generic request structure for RPC calls
+ */
+export type TransportRequest<TMethod = string, TParams = unknown> = {
+  method: TMethod;
+  params?: TParams;
+};
+
+/**
+ * Generic response structure for RPC calls
+ */
+export type TransportResponse<TResult = unknown> = {
+  data: {
+    result: TResult;
+    error?: {
+      message: string;
+      code: number;
+      stack: string;
+    };
+  };
 };
