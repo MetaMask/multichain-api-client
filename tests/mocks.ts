@@ -39,6 +39,8 @@ export function getMockTransport(): Transport {
         const { method, params } = requestData;
 
         const response = {
+          id: 1,
+          jsonrpc: '2.0',
           result: (() => {
             switch (method) {
               case 'wallet_createSession':
