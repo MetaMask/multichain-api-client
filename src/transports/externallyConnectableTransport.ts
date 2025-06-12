@@ -25,7 +25,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
   let { extensionId } = params;
   let chromePort: chrome.runtime.Port | undefined;
   let requestId = 1;
-  const requestMap: Map<number, { resolve: (value: any) => void; reject: (reason?: any) => void }> = new Map();
+  const pendingRequests = new Map<number, (value: any) => void>();
 
   /**
    * Storing notification callbacks.
@@ -41,12 +41,12 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
     // Handle notifications (messages without id)
     if (msg?.data?.id === null || msg?.data?.id === undefined) {
       notifyCallbacks(msg.data);
-    } else if (requestMap.has(msg.data.id)) {
+    } else if (pendingRequests.has(msg.data.id)) {
       // Handle responses to requests
-      const { resolve, reject } = requestMap.get(msg.data.id) ?? {};
-      requestMap.delete(msg.data.id);
+      const resolve = pendingRequests.get(msg.data.id);
+      pendingRequests.delete(msg.data.id);
 
-      if (resolve && reject) {
+      if (resolve) {
         resolve(msg);
       }
     }
@@ -106,7 +106,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
           chromePort.disconnect();
           chromePort = undefined;
           removeAllNotificationListeners();
-          requestMap.clear();
+          pendingRequests.clear();
         } catch (err) {
           console.log('[ChromeTransport] disconnect error:', err);
         }
@@ -125,8 +125,8 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
         ...params,
       };
 
-      return new Promise((resolve, reject) => {
-        requestMap.set(id, { resolve, reject });
+      return new Promise((resolve) => {
+        pendingRequests.set(id, resolve);
         currentChromePort.postMessage({ type: REQUEST_CAIP, data: requestPayload });
       });
     },
