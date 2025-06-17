@@ -32,6 +32,86 @@ const result = await client.invokeMethod({
 await client.revokeSession();
 ```
 
+## Extending RPC Types
+
+The client's RPC requests are strongly typed, enforcing the RPC methods and params to be defined ahead of usage. The client supports extending
+the default RPC API with custom methods. This is useful when working with chains that have additional RPC methods beyond
+the standard ones.
+
+### Define Custom RPC Types
+
+```typescript
+import type { RpcMethod } from '@metamask/multichain-api-client';
+
+// Define your custom RPC structure
+type MyCustomRpc = {
+  mychain: {
+    methods: {
+      customMethod: RpcMethod<{ param1: string; param2: number }, { result: string }>;
+      anotherMethod: RpcMethod<{ data: string }, boolean>;
+    };
+    events: ['customEvent'];
+  };
+};
+```
+
+### Use Extended RPC Types
+
+```typescript
+import { getMultichainClient, getDefaultTransport } from '@metamask/multichain-api-client';
+
+// Create a client with extended types
+const client = getMultichainClient({ transport: getDefaultTransport() })
+  .extendsRpcApi<MyCustomRpc>();
+
+// Now you can use your custom methods with full type safety
+const result = await client.invokeMethod({
+  scope: 'mychain:123', // Your custom chain scope
+  request: {
+    method: 'customMethod',
+    params: { param1: 'hello', param2: 42 }
+  }
+});
+```
+
+## Creating Custom Transports
+
+Transports handle the communication layer between your application and the wallet. You can create custom transports for different environments or communication methods.
+
+### Transport Interface
+
+A transport must implement the following interface:
+
+```typescript
+type Transport = {
+  connect: () => Promise<void>;
+  disconnect: () => Promise<void>;
+  isConnected: () => boolean;
+  request: <TRequest, TResponse>(request: TRequest) => Promise<TResponse>;
+  onNotification: (callback: (data: unknown) => void) => () => void;
+};
+```
+
+### Example: Custom Transport
+
+```typescript
+import type { Transport, TransportRequest, TransportResponse } from '@metamask/multichain-api-client';
+
+export function getCustomTransport(): Transport {
+  return {
+    connect: async () => { ... },
+    disconnect: async () => { ... },
+    isConnected: () => { ...},
+    request: async <TRequest extends TransportRequest, TResponse extends TransportResponse>( request: TRequest ): Promise<TResponse> => { ... },
+    onNotification: (callback: (data: unknown) => void) => { ... },
+  };
+}
+
+// Usage
+const transport = getCustomTransport();
+const client = getMultichainClient({ transport });
+```
+
 ## API
 
 See our documentation:
