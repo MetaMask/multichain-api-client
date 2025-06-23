@@ -48,7 +48,7 @@ describe('utils', () => {
     it('should retry a function that never resolves until it succeeds', async () => {
       expect(
         async () => await withRetry(mockMultichainApiRequest(), { maxRetries: 2, requestTimeout: 100 }),
-      ).rejects.toThrow('timeout reached');
+      ).rejects.toThrow('Timeout reached');
     });
 
     it('should retry a throwing function until it succeeds', async () => {

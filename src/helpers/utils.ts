@@ -21,7 +21,7 @@ export async function withRetry<T>(
     retryDelay?: number;
   } = {},
 ): Promise<T> {
-  const { maxRetries = 10, requestTimeout = 200, retryDelay = 200 } = options;
+  const { maxRetries = 10, requestTimeout = 200, retryDelay = requestTimeout } = options;
   const errorMessage = 'Timeout reached';
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
