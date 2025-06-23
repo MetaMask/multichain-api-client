@@ -50,9 +50,6 @@ export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
 
       // Use withRetry to handle the case where the Multichain API requests don't resolve on page load (cf. https://github.com/MetaMask/metamask-mobile/issues/16550)
       await withRetry(() => transport.request({ method: 'wallet_getSession' }));
-
-      // Replace with resolved promise for better performance on subsequent calls
-      initializationPromise = Promise.resolve();
     })();
 
     return await initializationPromise;
