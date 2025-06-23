@@ -39,6 +39,10 @@ export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
   let connectionPromise: Promise<boolean> | undefined = undefined;
 
   async function ensureConnected() {
+    if (transport.isConnected()) {
+      return;
+    }
+
     if (connectionPromise) {
       return await connectionPromise;
     }
