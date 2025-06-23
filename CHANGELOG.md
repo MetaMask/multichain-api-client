@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.3]
 
-### Uncategorized
+### Fixed
 
-- fix: handle multichain api not responding on page load with a retry mechanism ([#65](https://github.com/MetaMask/multichain-api-client/pull/65))
+- fix: handle multichain api not responding on page load (issue [#16550](https://github.com/MetaMask/metamask-mobile/issues/16550)) ([#65](https://github.com/MetaMask/multichain-api-client/pull/65))
 
 ## [0.6.2]
 
