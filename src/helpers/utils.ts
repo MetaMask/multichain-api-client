@@ -30,7 +30,7 @@ export async function withRetry<T>(
       return result;
     } catch (error) {
       // If this was the last attempt, throw the error
-      if (attempt === maxRetries) {
+      if (attempt >= maxRetries) {
         throw error;
       }
 
