@@ -29,8 +29,5 @@
   "typescript.referencesCodeLens.enabled": false,
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.preferences.importModuleSpecifier": "relative",
-  "typescript.preferences.quoteStyle": "single",
-  "[typescript]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  }
+  "typescript.preferences.quoteStyle": "single"
 }
