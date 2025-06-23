@@ -15,15 +15,20 @@ export const isChromeRuntime = (): boolean => {
  */
 export async function withRetry<T>(
   fn: () => Promise<T>,
-  maxRetries = 10,
-  requestTimeout = 200,
-  retryDelay = requestTimeout,
+  options: {
+    maxRetries?: number;
+    requestTimeout?: number;
+    retryDelay?: number;
+  } = {},
 ): Promise<T> {
+  const { maxRetries = 10, requestTimeout = 200, retryDelay = 200 } = options;
+  const errorMessage = 'Timeout reached';
+
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       // Use Promise.race to implement timeout
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('timeout reached')), requestTimeout);
+        setTimeout(() => reject(new Error(errorMessage)), requestTimeout);
       });
 
       const result = await Promise.race([fn(), timeoutPromise]);
@@ -35,7 +40,7 @@ export async function withRetry<T>(
       }
 
       // Wait before retrying (unless it was a timeout, then retry immediately)
-      if (error instanceof Error && error.message !== 'timeout reached') {
+      if (error instanceof Error && error.message !== errorMessage) {
         await new Promise((resolve) => setTimeout(resolve, retryDelay));
       }
     }

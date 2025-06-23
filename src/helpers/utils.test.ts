@@ -41,21 +41,25 @@ function mockThrowingFn() {
 describe('utils', () => {
   describe('withRetry', () => {
     it('should retry a function until it succeeds', async () => {
-      const result = await withRetry(mockMultichainApiRequest(), 4, 100);
+      const result = await withRetry(mockMultichainApiRequest(), { maxRetries: 4, requestTimeout: 100 });
       expect(result).toBe('success');
     });
 
     it('should retry a function that never resolves until it succeeds', async () => {
-      expect(async () => await withRetry(mockMultichainApiRequest(), 2, 100)).rejects.toThrow('timeout reached');
+      expect(
+        async () => await withRetry(mockMultichainApiRequest(), { maxRetries: 2, requestTimeout: 100 }),
+      ).rejects.toThrow('timeout reached');
     });
 
     it('should retry a throwing function until it succeeds', async () => {
-      const result = await withRetry(mockThrowingFn(), 4, 100);
+      const result = await withRetry(mockThrowingFn(), { maxRetries: 4, requestTimeout: 100 });
       expect(result).toBe('success');
     });
 
     it('should retry a throwing function until it succeeds', async () => {
-      expect(async () => await withRetry(mockThrowingFn(), 2, 100)).rejects.toThrow('error');
+      expect(async () => await withRetry(mockThrowingFn(), { maxRetries: 2, requestTimeout: 100 })).rejects.toThrow(
+        'error',
+      );
     });
   });
 });
