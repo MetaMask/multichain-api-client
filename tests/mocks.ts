@@ -39,46 +39,44 @@ export function getMockTransport(): Transport {
         const { method, params } = requestData;
 
         const response = {
-          data: {
-            result: (() => {
-              switch (method) {
-                case 'wallet_createSession':
-                  return mockSession;
-                case 'wallet_getSession':
-                  return mockSession;
-                case 'wallet_revokeSession':
-                  return undefined;
-                case 'wallet_invokeMethod': {
-                  const invokeParams = params as { scope: string; request: { method: string; params: any } };
-                  const { request } = invokeParams;
+          result: (() => {
+            switch (method) {
+              case 'wallet_createSession':
+                return mockSession;
+              case 'wallet_getSession':
+                return mockSession;
+              case 'wallet_revokeSession':
+                return undefined;
+              case 'wallet_invokeMethod': {
+                const invokeParams = params as { scope: string; request: { method: string; params: any } };
+                const { request } = invokeParams;
 
-                  switch (request.method) {
-                    case 'signAndSendTransaction':
-                      return { signature: 'mock-signature' };
-                    case 'signTransaction':
-                      return { signedTransaction: 'mock-signed-transaction' };
-                    case 'signMessage':
-                      return {
-                        signature: 'mock-signature',
-                        signedMessage: 'mock-signed-message',
-                        signatureType: 'ed25519',
-                      };
-                    case 'signIn':
-                      return {
-                        account: { address: 'mock-address' },
-                        signedMessage: 'mock-signed-message',
-                        signature: 'mock-signature',
-                        signatureType: 'ed25519',
-                      };
-                    default:
-                      throw new Error(`Unhandled method: ${request.method}`);
-                  }
+                switch (request.method) {
+                  case 'signAndSendTransaction':
+                    return { signature: 'mock-signature' };
+                  case 'signTransaction':
+                    return { signedTransaction: 'mock-signed-transaction' };
+                  case 'signMessage':
+                    return {
+                      signature: 'mock-signature',
+                      signedMessage: 'mock-signed-message',
+                      signatureType: 'ed25519',
+                    };
+                  case 'signIn':
+                    return {
+                      account: { address: 'mock-address' },
+                      signedMessage: 'mock-signed-message',
+                      signature: 'mock-signature',
+                      signatureType: 'ed25519',
+                    };
+                  default:
+                    throw new Error(`Unhandled method: ${request.method}`);
                 }
-                default:
-                  throw new Error(`Unhandled method: ${method}`);
               }
-            })(),
-          },
+              default:
+                throw new Error(`Unhandled method: ${method}`);
+            }
+          })(),
         } as TResponse;
 
         return response;

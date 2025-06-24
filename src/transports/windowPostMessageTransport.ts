@@ -1,5 +1,5 @@
 import { TransportError } from '../types/errors';
-import type { Transport } from '../types/transport';
+import type { Transport, TransportResponse } from '../types/transport';
 import { CONTENT_SCRIPT, INPAGE, MULTICHAIN_SUBSTREAM_NAME } from './constants';
 
 /**
@@ -38,7 +38,7 @@ export function getWindowPostMessageTransport(): Transport {
     }
   }
 
-  function handleMessage(message: any): void {
+  function handleMessage(message: TransportResponse<unknown>): void {
     if (message?.id === null || message?.id === undefined) {
       // No id => notification
       notifyCallbacks(message);

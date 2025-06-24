@@ -1,6 +1,6 @@
 import { detectMetamaskExtensionId } from '../helpers/metamaskExtensionId';
 import { TransportError } from '../types/errors';
-import type { Transport } from '../types/transport';
+import type { Transport, TransportResponse } from '../types/transport';
 import { REQUEST_CAIP } from './constants';
 
 /**
@@ -37,16 +37,18 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
    * Handle messages from the extension
    * @param msg
    */
-  function handleMessage(msg: any) {
-    // Handle notifications (messages without id)
-    if (msg?.data?.id === null || msg?.data?.id === undefined) {
-      notifyCallbacks(msg.data);
-    } else if (pendingRequests.has(msg.data.id)) {
-      // Handle responses to requests
-      const resolve = pendingRequests.get(msg.data.id);
-      pendingRequests.delete(msg.data.id);
+  function handleMessage(msg: { data: TransportResponse<unknown> }) {
+    const { data } = msg;
 
-      resolve?.(msg);
+    // Handle notifications (messages without id)
+    if (data?.id === null || data?.id === undefined) {
+      notifyCallbacks(data);
+    } else if (pendingRequests.has(data.id)) {
+      // Handle responses to requests
+      const resolve = pendingRequests.get(data.id);
+      pendingRequests.delete(data.id);
+
+      resolve?.(data);
     }
   }
 

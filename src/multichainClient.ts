@@ -110,9 +110,9 @@ async function request<T extends RpcApi, M extends MultichainApiMethod>({
     TransportResponse<MultichainApiReturn<T, M>>
   >({ method, params });
 
-  if (res.data?.error) {
-    throw new MultichainApiError(res.data.error);
+  if (res?.error) {
+    throw new MultichainApiError(res.error);
   }
 
-  return res.data.result;
+  return res.result;
 }

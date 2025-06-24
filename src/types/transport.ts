@@ -62,12 +62,12 @@ export type TransportRequest<TMethod = string, TParams = unknown> = {
  * Generic response structure for RPC calls
  */
 export type TransportResponse<TResult = unknown> = {
-  data: {
-    result: TResult;
-    error?: {
-      message: string;
-      code: number;
-      stack: string;
-    };
+  id: number;
+  jsonrpc: '2.0';
+  result: TResult;
+  error?: {
+    message: string;
+    code: number;
+    stack: string;
   };
 };
