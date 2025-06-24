@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.3]
+
+### Fixed
+
+- fix: handle multichain api not responding on page load (issue [#16550](https://github.com/MetaMask/metamask-mobile/issues/16550)) ([#65](https://github.com/MetaMask/multichain-api-client/pull/65))
+
 ## [0.6.2]
 
 ### Fixed
@@ -63,7 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[Unreleased]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.2...HEAD
+[Unreleased]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.3...HEAD
+[0.6.3]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/MetaMask/multichain-api-client/compare/v0.5.0...v0.6.0
