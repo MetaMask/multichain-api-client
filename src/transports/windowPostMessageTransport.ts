@@ -17,7 +17,7 @@ import { CONTENT_SCRIPT, INPAGE, MULTICHAIN_SUBSTREAM_NAME } from './constants';
  */
 export function getWindowPostMessageTransport(): Transport {
   let messageListener: ((event: MessageEvent) => void) | null = null;
-  const requestMap: Map<number, { resolve: (value: any) => void; reject: (reason?: any) => void }> = new Map();
+  const pendingRequests: Map<number, (value: any) => void> = new Map();
   let requestId = 1;
   /**
    * Storing notification callbacks.
@@ -42,13 +42,11 @@ export function getWindowPostMessageTransport(): Transport {
     if (message?.id === null || message?.id === undefined) {
       // No id => notification
       notifyCallbacks(message);
-    } else if (requestMap.has(message.id)) {
-      const { resolve } = requestMap.get(message.id) ?? {};
-      requestMap.delete(message.id);
+    } else if (pendingRequests.has(message.id)) {
+      const resolve = pendingRequests.get(message.id);
+      pendingRequests.delete(message.id);
 
-      if (resolve) {
-        resolve(message);
-      }
+      resolve?.(message);
     }
   }
 
@@ -70,7 +68,7 @@ export function getWindowPostMessageTransport(): Transport {
       window.removeEventListener('message', messageListener);
       messageListener = null;
     }
-    requestMap.clear();
+    pendingRequests.clear();
     notificationCallbacks.clear();
   }
 
@@ -110,8 +108,8 @@ export function getWindowPostMessageTransport(): Transport {
         ...params,
       };
 
-      return new Promise((resolve, reject) => {
-        requestMap.set(id, { resolve, reject });
+      return new Promise((resolve) => {
+        pendingRequests.set(id, resolve);
         sendRequest(request);
       });
     },

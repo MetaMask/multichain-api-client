@@ -46,9 +46,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
       const resolve = pendingRequests.get(msg.data.id);
       pendingRequests.delete(msg.data.id);
 
-      if (resolve) {
-        resolve(msg);
-      }
+      resolve?.(msg);
     }
   }
 
