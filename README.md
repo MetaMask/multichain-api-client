@@ -112,6 +112,53 @@ const transport = getCustomTransport();
 const client = getMultichainClient({ transport });
 ```
 
+## Error Handling
+
+The client provides two main error types for handling different failure scenarios:
+
+### TransportError
+
+`TransportError` is thrown when there are issues with the transport layer communication, such as connection failures or the targeted browser extension not being installed.
+
+```typescript
+import { TransportError } from '@metamask/multichain-api-client';
+
+try {
+  const client = getMultichainClient({ transport: getDefaultTransport() });
+  await client.createSession({ optionalScopes: ['eip155:1'] });
+} catch (error) {
+  if (error instanceof TransportError) {
+    console.error('Transport error:', error.message);
+    console.error('Original error:', error.cause);
+  }
+}
+```
+
+### MultichainApiError
+
+`MultichainApiError` is thrown when the wallet returns an error response to API requests. This includes permission denials, invalid parameters, and other wallet-specific errors.
+
+```typescript
+import { MultichainApiError } from '@metamask/multichain-api-client';
+
+try {
+  const result = await client.invokeMethod({
+    scope: 'eip155:1',
+    request: {
+      method: 'eth_sendTransaction',
+      params: { to: '0x1234...', value: '0x0' }
+    }
+  });
+} catch (error) {
+  if (error instanceof MultichainApiError) {
+    console.error('Multichain API error:', error.message);
+    console.error('Error details:', error.cause);
+  }
+}
+```
+
+Both error types extend the standard `Error` class and may include the original error in the `cause` property for debugging purposes.
+
 ## API
 
 See our documentation:
