@@ -1,7 +1,6 @@
 import { detectMetamaskExtensionId } from '../helpers/metamaskExtensionId';
-import type { MultichainApiMethod, MultichainApiParams, MultichainApiReturn } from '../types/multichainApi';
-import type { RpcApi } from '../types/scopes';
-import type { Transport } from '../types/transport';
+import { TransportError } from '../types/errors';
+import type { Transport, TransportResponse } from '../types/transport';
 import { REQUEST_CAIP } from './constants';
 
 /**
@@ -26,7 +25,7 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
   let { extensionId } = params;
   let chromePort: chrome.runtime.Port | undefined;
   let requestId = 1;
-  const requestMap: Map<number, { resolve: (value: any) => void; reject: (reason?: any) => void }> = new Map();
+  const pendingRequests = new Map<number, (value: any) => void>();
 
   /**
    * Storing notification callbacks.
@@ -38,22 +37,18 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
    * Handle messages from the extension
    * @param msg
    */
-  function handleMessage(msg: any) {
-    // Handle notifications (messages without id)
-    if (msg?.data?.id === null || msg?.data?.id === undefined) {
-      notifyCallbacks(msg.data);
-    } else if (requestMap.has(msg.data.id)) {
-      // Handle responses to requests
-      const { resolve, reject } = requestMap.get(msg.data.id) ?? {};
-      requestMap.delete(msg.data.id);
+  function handleMessage(msg: { data: TransportResponse<unknown> }) {
+    const { data } = msg;
 
-      if (resolve && reject) {
-        if (msg.data.error) {
-          reject(new Error(msg.data.error.message));
-        } else {
-          resolve(msg.data.result);
-        }
-      }
+    // Handle notifications (messages without id)
+    if (data?.id === null || data?.id === undefined) {
+      notifyCallbacks(data);
+    } else if (pendingRequests.has(data.id)) {
+      // Handle responses to requests
+      const resolve = pendingRequests.get(data.id);
+      pendingRequests.delete(data.id);
+
+      resolve?.(data);
     }
   }
 
@@ -85,15 +80,15 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
 
         let isActive = true;
         pendingPort.onDisconnect.addListener(() => {
-          isActive = false;
           console.log('[ChromeTransport] chromePort disconnected');
           chromePort = undefined;
+          isActive = false;
         });
 
         // let a tick for onDisconnect
         await new Promise((resolve) => setTimeout(resolve, 10));
         if (!isActive) {
-          return false;
+          throw new Error(`No extension found with id: ${extensionId}`);
         }
 
         // Listen to messages from the extension
@@ -101,10 +96,8 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
 
         // Assign the port at the end to avoid race conditions
         chromePort = pendingPort;
-        return true;
       } catch (err) {
-        console.log('[ChromeTransport] connect error:', err);
-        return false;
+        throw new TransportError('Failed to connect to MetaMask', err);
       }
     },
     disconnect: async () => {
@@ -113,34 +106,27 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
           chromePort.disconnect();
           chromePort = undefined;
           removeAllNotificationListeners();
-          requestMap.clear();
+          pendingRequests.clear();
         } catch (err) {
           console.log('[ChromeTransport] disconnect error:', err);
         }
       }
     },
     isConnected: () => chromePort !== undefined,
-    request: <T extends RpcApi, M extends MultichainApiMethod>({
-      method,
-      params = {},
-    }: {
-      method: M;
-      params?: MultichainApiParams<T, M>;
-    }): Promise<MultichainApiReturn<T, M>> => {
+    request: <ParamsType extends Object, ReturnType extends Object>(params: ParamsType): Promise<ReturnType> => {
       const currentChromePort = chromePort;
       if (!currentChromePort) {
-        throw new Error('Chrome port not connected');
+        throw new TransportError('Chrome port not connected');
       }
       const id = requestId++;
       const requestPayload = {
         id,
         jsonrpc: '2.0',
-        method,
-        params,
+        ...params,
       };
 
-      return new Promise((resolve, reject) => {
-        requestMap.set(id, { resolve, reject });
+      return new Promise((resolve) => {
+        pendingRequests.set(id, resolve);
         currentChromePort.postMessage({ type: REQUEST_CAIP, data: requestPayload });
       });
     },

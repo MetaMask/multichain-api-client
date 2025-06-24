@@ -104,7 +104,7 @@ describe('getMultichainClient', () => {
   });
 
   it('should ensure transport is connected before making requests', async () => {
-    const mockConnect = vi.fn(() => Promise.resolve(true));
+    const mockConnect = vi.fn(() => Promise.resolve());
     const mockIsConnected = vi.fn(() => false);
     const transport = {
       ...mockTransport,
