@@ -6,7 +6,6 @@ import { getExternallyConnectableTransport } from './externallyConnectableTransp
 
 const testExtensionId = 'metamask-extension-id';
 
-// Mock chrome.runtime
 const mockChrome = {
   runtime: {
     connect: vi.fn(),
@@ -53,7 +52,6 @@ describe('ExternallyConnectableTransport E2E', () => {
   });
 
   it('should fetch extension id when not provided', async () => {
-    // Mock detectMetamaskExtensionId to return testExtensionId
     const detectSpy = vi.spyOn(metamaskExtensionId, 'detectMetamaskExtensionId').mockResolvedValue(testExtensionId);
 
     const newTransport = getExternallyConnectableTransport({});
