@@ -89,7 +89,7 @@ describe('ExternallyConnectableTransport E2E', () => {
     });
 
     const response = await requestPromise;
-    expect(response.data.result).toEqual(mockSession);
+    expect(response.result).toEqual(mockSession);
     expect(mockPort.postMessage).toHaveBeenCalledWith({
       type: 'caip-348',
       data: {
