@@ -15,7 +15,7 @@ const mockChrome = {
 // @ts-ignore - Mocking chrome global
 global.chrome = mockChrome;
 
-describe('ExternallyConnectableTransport E2E', () => {
+describe('ExternallyConnectableTransport', () => {
   let transport: ReturnType<typeof getExternallyConnectableTransport>;
   let messageHandler: (msg: any) => void;
   let disconnectHandler: () => void;
