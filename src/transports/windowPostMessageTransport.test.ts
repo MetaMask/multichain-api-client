@@ -21,7 +21,7 @@ global.window = mockWindow as any;
 // @ts-ignore - Mocking location global
 global.location = mockLocation as any;
 
-describe('WindowPostMessageTransport E2E', () => {
+describe('WindowPostMessageTransport', () => {
   let transport: ReturnType<typeof getWindowPostMessageTransport>;
   let messageHandler: (event: MessageEvent) => void;
 
