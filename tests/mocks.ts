@@ -39,6 +39,8 @@ export function getMockTransport(): Transport {
         const { method, params } = requestData;
 
         const response = {
+          id: 1,
+          jsonrpc: '2.0',
           result: (() => {
             switch (method) {
               case 'wallet_createSession':
@@ -85,3 +87,10 @@ export function getMockTransport(): Transport {
 
   return { isConnected, connect, disconnect, request, onNotification };
 }
+
+export type MockPort = {
+  postMessage: ReturnType<typeof vi.fn>;
+  onMessage: { addListener: ReturnType<typeof vi.fn> };
+  onDisconnect: { addListener: ReturnType<typeof vi.fn> };
+  disconnect: ReturnType<typeof vi.fn>;
+};
