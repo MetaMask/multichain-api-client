@@ -1,6 +1,6 @@
 {
   "name": "@metamask/multichain-api-client",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "license": "ISC",
   "description": "MetaMask Multichain Api Client",
   "homepage": "https://github.com/MetaMask/multichain-api-client#readme",
