@@ -9,14 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.4]
 
-### Fixed
-
-- fix: delay getSession to first request ([#67](https://github.com/MetaMask/multichain-api-client/pull/67))
-
 ### Changed
 
 - feat: custom error classes ([#58](https://github.com/MetaMask/multichain-api-client/pull/58))
 - doc: add doc to extend RPC API and create custom transports ([#64](https://github.com/MetaMask/multichain-api-client/pull/64))
+
+### Fixed
+
+- fix: delay getSession to first request ([#67](https://github.com/MetaMask/multichain-api-client/pull/67))
 
 ## [0.6.3]
 
