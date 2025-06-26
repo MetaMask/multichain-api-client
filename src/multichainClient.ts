@@ -44,6 +44,18 @@ export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
   transport,
 }: { transport: Transport }): MultichainApiClient<T> {
   let initializationPromise: Promise<void> | undefined = undefined;
+  let connectionPromise: Promise<void> | undefined = undefined;
+
+  async function ensureConnected() {
+    if (transport.isConnected()) {
+      return;
+    }
+
+    if (!connectionPromise) {
+      connectionPromise = transport.connect();
+    }
+    await connectionPromise;
+  }
 
   async function ensureInitialized() {
     if (initializationPromise) {
@@ -51,10 +63,7 @@ export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
     }
 
     initializationPromise = (async () => {
-      // Ensure connected first
-      if (!transport.isConnected()) {
-        await transport.connect();
-      }
+      await ensureConnected();
 
       // Use withRetry to handle the case where the Multichain API requests don't resolve on page load (cf. https://github.com/MetaMask/metamask-mobile/issues/16550)
       await withRetry(() => transport.request({ method: 'wallet_getSession' }));
@@ -64,7 +73,7 @@ export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
   }
 
   // Try to connect to the transport on client creation to reduce latency when first used
-  void ensureInitialized();
+  void ensureConnected();
 
   return {
     createSession: async (params: CreateSessionParams<T>): Promise<SessionData> => {
@@ -78,6 +87,7 @@ export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
     revokeSession: async () => {
       await ensureInitialized();
       initializationPromise = undefined;
+      connectionPromise = undefined;
       await request({ transport, method: 'wallet_revokeSession' });
       await transport.disconnect();
     },
