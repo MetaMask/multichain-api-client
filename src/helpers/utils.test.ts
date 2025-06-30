@@ -46,7 +46,7 @@ describe('utils', () => {
     });
 
     it('should retry a function that never resolves until it succeeds', async () => {
-      expect(
+      await expect(
         async () => await withRetry(mockMultichainApiRequest(), { maxRetries: 2, requestTimeout: 100 }),
       ).rejects.toThrow('Timeout reached');
     });
@@ -57,9 +57,9 @@ describe('utils', () => {
     });
 
     it('should retry a throwing function until it succeeds', async () => {
-      expect(async () => await withRetry(mockThrowingFn(), { maxRetries: 2, requestTimeout: 100 })).rejects.toThrow(
-        'error',
-      );
+      await expect(
+        async () => await withRetry(mockThrowingFn(), { maxRetries: 2, requestTimeout: 100 }),
+      ).rejects.toThrow('error');
     });
   });
 });
