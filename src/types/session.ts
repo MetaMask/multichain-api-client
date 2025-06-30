@@ -21,8 +21,8 @@ type Json =
  */
 export type ScopeObject = {
   references?: string[];
-  methods?: string[];
-  notifications?: string[];
+  methods: string[];
+  notifications: string[];
   accounts?: CaipAccountId[];
 };
 
