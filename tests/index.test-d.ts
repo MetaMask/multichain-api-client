@@ -29,15 +29,19 @@ expectType<{
 );
 
 // Basic eth_call with correct scope and parameters
-expectType<string>(
+expectType<`0x${string}`>(
   await client.invokeMethod({
     scope: 'eip155:1',
     request: {
       method: 'eth_call',
-      params: {
-        to: '0x1234567890',
-        data: '0x1234567890',
-      },
+      params: [
+        {
+          from: '0x1234567890',
+          to: '0x1234567890',
+          data: '0x1234567890',
+        },
+        'latest',
+      ],
     },
   }),
 );
