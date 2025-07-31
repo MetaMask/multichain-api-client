@@ -49,11 +49,3 @@ export async function withRetry<T>(
   // This should never be reached due to the throw in the loop
   throw new Error('Max retries exceeded');
 }
-
-/**
- * Generate a random request ID
- * @returns A random number between 0 and 10000000
- */
-export function generateRequestId(): number {
-  return Math.floor(Math.random() * 10000000);
-}

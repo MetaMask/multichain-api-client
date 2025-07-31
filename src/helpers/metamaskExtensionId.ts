@@ -1,13 +1,10 @@
 import { CONTENT_SCRIPT, INPAGE, METAMASK_EXTENSION_CONNECT_CAN_RETRY } from '../transports/constants';
 import { METAMASK_PROVIDER_STREAM_NAME } from '../transports/constants';
-import { generateRequestId } from './utils';
 
 /**
  * Get the MetaMask extension ID by sending a metamask_getProviderState to the content script
  */
 export async function detectMetamaskExtensionId(): Promise<string> {
-  const requestId = generateRequestId();
-
   return new Promise((resolve, reject) => {
     const messageHandler = (event: MessageEvent) => {
       if (isProviderMessage(event)) {
@@ -15,15 +12,11 @@ export async function detectMetamaskExtensionId(): Promise<string> {
 
         // When a retry message is received, it means the previous getProviderState request was not received by the extension, so we need to retry
         if (data?.method === METAMASK_EXTENSION_CONNECT_CAN_RETRY) {
-          getProviderState(requestId);
+          getProviderState();
         }
         // Handle the provider state response
-        else if (data?.id === requestId) {
+        else if (data?.result?.extensionId) {
           const extensionId = data?.result?.extensionId;
-          if (!extensionId) {
-            reject(new Error('metamask_getProviderState response is missing extensionId'));
-          }
-
           resolve(extensionId);
           window.removeEventListener('message', messageHandler);
           clearTimeout(timeoutId);
@@ -38,18 +31,15 @@ export async function detectMetamaskExtensionId(): Promise<string> {
 
     window.addEventListener('message', messageHandler);
 
-    getProviderState(requestId);
+    getProviderState();
   });
 }
 
-function getProviderState(requestId: number) {
+function getProviderState() {
   window.postMessage(
     {
       target: CONTENT_SCRIPT,
-      data: {
-        name: METAMASK_PROVIDER_STREAM_NAME,
-        data: { jsonrpc: '2.0', id: requestId, method: 'metamask_getProviderState' },
-      },
+      data: { name: METAMASK_PROVIDER_STREAM_NAME, data: { method: 'metamask_getProviderState' } },
     },
     location.origin,
   );
