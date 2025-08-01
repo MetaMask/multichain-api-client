@@ -9,10 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.5]
 
+### Added
+
+- feat: expand EIP155 RPC types and methods ([#69](https://github.com/MetaMask/multichain-api-client/pull/69))
+
 ### Fixed
 
 - fix: enhance MetaMask extension ID detection with retry logic ([#70](https://github.com/MetaMask/multichain-api-client/pull/70))
-- feat: expand EIP155 RPC types and methods ([#69](https://github.com/MetaMask/multichain-api-client/pull/69))
 
 ## [0.6.4]
 
