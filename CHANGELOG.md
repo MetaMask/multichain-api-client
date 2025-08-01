@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.5]
+
+### Added
+
+- feat: expand EIP155 RPC types and methods ([#69](https://github.com/MetaMask/multichain-api-client/pull/69))
+
+### Fixed
+
+- fix: enhance MetaMask extension ID detection with retry logic ([#70](https://github.com/MetaMask/multichain-api-client/pull/70))
+
 ## [0.6.4]
 
 ### Changed
@@ -80,7 +90,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[Unreleased]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.4...HEAD
+[Unreleased]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.5...HEAD
+[0.6.5]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.4...v0.6.5
 [0.6.4]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.1...v0.6.2
