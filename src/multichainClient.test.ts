@@ -1,9 +1,14 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getMockTransport, mockScope, mockSession } from '../tests/mocks';
 import { getMultichainClient } from './multichainClient';
+import type { Transport } from './types/transport';
 
 const mockTransport = getMockTransport();
 describe('getMultichainClient', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('should create a client with all required methods', async () => {
     const client = getMultichainClient({ transport: mockTransport });
 
@@ -118,5 +123,97 @@ describe('getMultichainClient', () => {
 
     expect(mockIsConnected).toHaveBeenCalled();
     expect(mockConnect).toHaveBeenCalled();
+  });
+
+  it('should timeout if transport is too slow', async () => {
+    const slowTransport: Transport = {
+      ...mockTransport,
+      // This request will never resolve
+      request: vi.fn(() => new Promise(() => ({}))) as Transport['request'],
+      connect: vi.fn(() => Promise.resolve()),
+      isConnected: vi.fn(() => false),
+    };
+
+    const client = getMultichainClient({ transport: slowTransport, requestTimeout: 10 });
+
+    await expect(client.getSession()).rejects.toThrow('Timeout reached');
+  });
+
+  it('should use custom requestTimeout when provided', async () => {
+    vi.spyOn(mockTransport, 'request').mockImplementation(() => {
+      return new Promise((resolve) => setTimeout(() => resolve({ result: mockSession } as any), 20));
+    });
+
+    const client = getMultichainClient({ transport: mockTransport, requestTimeout: 10 });
+    await expect(client.getSession()).rejects.toThrow('Timeout reached');
+  });
+
+  it('should use default timeout when requestTimeout is not provided', async () => {
+    vi.spyOn(mockTransport, 'request').mockImplementation(() => {
+      return new Promise((resolve) => setTimeout(() => resolve({ result: mockSession } as any), 250));
+    });
+
+    const client = getMultichainClient({ transport: mockTransport });
+    await expect(client.getSession()).rejects.toThrow('Timeout reached');
+  });
+
+  it('createSession should timeout if transport is too slow', async () => {
+    const client = getMultichainClient({ transport: mockTransport, requestTimeout: 10 });
+
+    vi.spyOn(mockTransport, 'request').mockImplementation(async ({ method }: { method: string }) => {
+      if (method === 'wallet_createSession') {
+        return new Promise(() => {}); // never resolve
+      }
+      if (method === 'wallet_getSession') {
+        return { result: mockSession } as any;
+      }
+      return { result: undefined } as any;
+    });
+
+    await expect(client.createSession({ optionalScopes: {} })).rejects.toThrow('Timeout reached');
+  });
+
+  it('revokeSession should timeout if transport is too slow', async () => {
+    const client = getMultichainClient({ transport: mockTransport, requestTimeout: 10 });
+
+    vi.spyOn(mockTransport, 'request').mockImplementation(async ({ method }: { method: string }) => {
+      if (method === 'wallet_revokeSession') {
+        return new Promise(() => {}); // never resolve
+      }
+      if (method === 'wallet_getSession') {
+        return { result: mockSession } as any;
+      }
+      return { result: undefined } as any;
+    });
+
+    await expect(client.revokeSession()).rejects.toThrow('Timeout reached');
+  });
+
+  it('invokeMethod should timeout if transport is too slow', async () => {
+    const client = getMultichainClient({ transport: mockTransport, requestTimeout: 10 });
+
+    vi.spyOn(mockTransport, 'request').mockImplementation(async ({ method }: { method: string }) => {
+      if (method === 'wallet_invokeMethod') {
+        return new Promise(() => {}); // never resolve
+      }
+      if (method === 'wallet_getSession') {
+        return { result: mockSession } as any;
+      }
+      return { result: undefined } as any;
+    });
+
+    await expect(
+      client.invokeMethod({
+        scope: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpK',
+        request: {
+          method: 'signAndSendTransaction',
+          params: {
+            account: { address: 'mock-address' },
+            transaction: 'mock-transaction',
+            scope: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpK',
+          },
+        },
+      }),
+    ).rejects.toThrow('Timeout reached');
   });
 });
