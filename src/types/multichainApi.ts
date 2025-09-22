@@ -68,7 +68,7 @@ export type MultichainApiClient<T extends RpcApi = DefaultRpcApi> = {
 export type MultichainApi<T extends RpcApi> = {
   wallet_createSession: RpcMethod<CreateSessionParams<T>, SessionData>;
   wallet_getSession: RpcMethod<void, SessionData | undefined>;
-  wallet_revokeSession: RpcMethod<void, void>;
+  wallet_revokeSession: RpcMethod<RevokeSessionParams<T>, void>;
   wallet_invokeMethod: <S extends Scope<T>, M extends MethodName<T, S>>(
     params: InvokeMethodParams<T, S, M>,
   ) => MethodReturn<T, S, M>;
@@ -79,6 +79,11 @@ export type CreateSessionParams<T extends RpcApi> = {
   requiredScopes?: Record<Scope<T>, ScopeObject>;
   optionalScopes?: Record<Scope<T>, ScopeObject>;
   sessionProperties?: SessionProperties;
+};
+
+// wallet_revokeSession params
+export type RevokeSessionParams<T extends RpcApi> = {
+  sessionScopes?: Scope<T>[]
 };
 
 // wallet_invokeMethod params
