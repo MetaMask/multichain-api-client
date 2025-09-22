@@ -32,6 +32,8 @@ export type MultichainApiClient<T extends RpcApi = DefaultRpcApi> = {
   /**
    * Revokes the current session and disconnects from the wallet
    *
+   * @param params - Session revoke parameters
+   * @param params.sessionScopes - Scopes that may be passed to partially revoke permission granted by the wallet
    * @returns A promise that resolves when the session is revoked
    */
   revokeSession: MultichainApi<T>['wallet_revokeSession'];
