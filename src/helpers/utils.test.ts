@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { withRetry, withTimeout } from './utils';
+import { TransportTimeoutError } from '../types/errors';
 
 describe('utils', () => {
+  class CustomTimeoutError extends Error {}
+  class CustomError extends Error {}
+
   describe('withRetry', () => {
     it('retries on thrown error until success', async () => {
       let attempts = 0;
@@ -29,12 +33,11 @@ describe('utils', () => {
     });
 
     it('retries only specific error class with delay', async () => {
-      class CustomTimeoutError extends Error {}
       let attempts = 0;
       const fn = async () => {
         attempts++;
         if (attempts < 3) {
-          throw new CustomTimeoutError('timeout');
+          throw new CustomError('Custom Error');
         }
         return 'done';
       };
@@ -47,8 +50,24 @@ describe('utils', () => {
       expect(elapsed).toBeGreaterThanOrEqual(30);
     });
 
+    it('retries only TimeoutError class without delay', async () => {
+      let attempts = 0;
+      const fn = async () => {
+        attempts++;
+        if (attempts < 3) {
+          throw new CustomTimeoutError('Custom Error');
+        }
+        return 'done';
+      };
+      const start = Date.now();
+      const result = await withRetry(fn, { maxRetries: 5, retryDelay: 20, timeoutErrorClass: CustomTimeoutError });
+      const elapsed = Date.now() - start;
+      expect(result).toBe('done');
+      expect(attempts).toBe(3);
+      expect(elapsed).toBeLessThanOrEqual(20);
+    });
+
     it('continues retrying even if non-timeout errors occur (no delay applied for them)', async () => {
-      class CustomTimeoutError extends Error {}
       const sequenceErrors = [new Error('other'), new CustomTimeoutError('timeout'), new CustomTimeoutError('timeout')];
       let attempts = 0;
       const fn = async () => {
@@ -81,7 +100,6 @@ describe('utils', () => {
     });
 
     it('should use custom error from errorFactory', async () => {
-      class CustomTimeoutError extends Error {}
       await expect(withTimeout(new Promise(() => {}), 10, () => new CustomTimeoutError('custom'))).rejects.toThrow(
         CustomTimeoutError,
       );

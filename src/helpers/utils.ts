@@ -37,8 +37,10 @@ export async function withRetry<T>(
 
       // Wait before retrying (unless it was a timeout, then retry immediately)
       if (timeoutErrorClass && typeof timeoutErrorClass === 'function' && error instanceof timeoutErrorClass) {
-        await new Promise((resolve) => setTimeout(resolve, retryDelay));
+        continue;
       }
+
+      await new Promise((resolve) => setTimeout(resolve, retryDelay));
     }
   }
 
