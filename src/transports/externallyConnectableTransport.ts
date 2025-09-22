@@ -1,7 +1,8 @@
 import { detectMetamaskExtensionId } from '../helpers/metamaskExtensionId';
-import { TransportError } from '../types/errors';
+import { withTimeout } from '../helpers/utils';
+import { TransportError, TransportTimeoutError } from '../types/errors';
 import type { Transport, TransportResponse } from '../types/transport';
-import { REQUEST_CAIP } from './constants';
+import { DEFAULT_REQUEST_TIMEOUT, REQUEST_CAIP } from './constants';
 
 /**
  * Creates a transport that communicates with the MetaMask extension via Chrome's externally_connectable API
@@ -21,8 +22,11 @@ import { REQUEST_CAIP } from './constants';
  * });
  * ```
  */
-export function getExternallyConnectableTransport(params: { extensionId?: string } = {}): Transport {
+export function getExternallyConnectableTransport(
+  params: { extensionId?: string; defaultTimeout?: number } = {},
+): Transport {
   let { extensionId } = params;
+  const { defaultTimeout = DEFAULT_REQUEST_TIMEOUT } = params;
   let chromePort: chrome.runtime.Port | undefined;
   let requestId = 1;
   const pendingRequests = new Map<number, (value: any) => void>();
@@ -113,7 +117,11 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
       }
     },
     isConnected: () => chromePort !== undefined,
-    request: <ParamsType extends Object, ReturnType extends Object>(params: ParamsType): Promise<ReturnType> => {
+    request: async <ParamsType extends Object, ReturnType extends Object>(
+      params: ParamsType,
+      options: { timeout?: number } = {},
+    ): Promise<ReturnType> => {
+      const { timeout = defaultTimeout } = options;
       const currentChromePort = chromePort;
       if (!currentChromePort) {
         throw new TransportError('Chrome port not connected');
@@ -125,10 +133,14 @@ export function getExternallyConnectableTransport(params: { extensionId?: string
         ...params,
       };
 
-      return new Promise((resolve) => {
-        pendingRequests.set(id, resolve);
-        currentChromePort.postMessage({ type: REQUEST_CAIP, data: requestPayload });
-      });
+      return await withTimeout(
+        new Promise((resolve) => {
+          pendingRequests.set(id, resolve);
+          currentChromePort.postMessage({ type: REQUEST_CAIP, data: requestPayload });
+        }),
+        timeout,
+        () => new TransportTimeoutError(),
+      );
     },
     onNotification: (callback: (data: unknown) => void) => {
       notificationCallbacks.add(callback);

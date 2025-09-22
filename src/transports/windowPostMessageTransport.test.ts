@@ -304,4 +304,13 @@ describe('WindowPostMessageTransport', () => {
     expect(mockWindow.addEventListener).toHaveBeenCalledTimes(2);
     expect(transport.isConnected()).toBe(true);
   });
+
+  it('should timeout if no response is received', async () => {
+    await transport.connect();
+    // Do not simulate a response: it should timeout
+    await expect(transport.request({ method: 'wallet_getSession' }, { timeout: 10 })).rejects.toThrow(
+      'Transport request timed out',
+    );
+    await expect(transport.request({ method: 'wallet_getSession' }, { timeout: 10 })).rejects.toThrow(TransportError);
+  });
 });
