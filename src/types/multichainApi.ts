@@ -85,7 +85,7 @@ export type CreateSessionParams<T extends RpcApi> = {
 
 // wallet_revokeSession params
 export type RevokeSessionParams<T extends RpcApi> = {
-  sessionScopes?: Scope<T>[]
+  sessionScopes?: Scope<T>[];
 };
 
 // wallet_invokeMethod params
