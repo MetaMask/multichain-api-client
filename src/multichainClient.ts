@@ -7,6 +7,7 @@ import type {
   MultichainApiMethod,
   MultichainApiParams,
   MultichainApiReturn,
+  RevokeSessionParams,
 } from './types/multichainApi';
 import type { DefaultRpcApi, MethodName, MethodReturn, RpcApi, Scope } from './types/scopes';
 import type { SessionData } from './types/session';
@@ -84,11 +85,11 @@ export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
       await ensureInitialized();
       return await request({ transport, method: 'wallet_getSession' });
     },
-    revokeSession: async () => {
+    revokeSession: async (params?: RevokeSessionParams<T>) => {
       await ensureInitialized();
       initializationPromise = undefined;
       connectionPromise = undefined;
-      await request({ transport, method: 'wallet_revokeSession' });
+      await request({ transport, method: 'wallet_revokeSession', params });
       await transport.disconnect();
     },
     invokeMethod: async <S extends Scope<T>, M extends MethodName<T, S>>(

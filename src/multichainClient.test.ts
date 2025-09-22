@@ -39,16 +39,17 @@ describe('getMultichainClient', () => {
   describe('revokeSession', () => {
     it('should revoke session successfully', async () => {
       const client = getMultichainClient({ transport: mockTransport });
-      await client.revokeSession();
+      await client.revokeSession({});
 
       expect(mockTransport.request).toHaveBeenCalledWith({
         method: 'wallet_revokeSession',
+        params: {},
       });
     });
 
     it('should disconnect transport after revoking session', async () => {
       const client = getMultichainClient({ transport: mockTransport });
-      await client.revokeSession();
+      await client.revokeSession({});
 
       expect(mockTransport.disconnect).toHaveBeenCalled();
     });
