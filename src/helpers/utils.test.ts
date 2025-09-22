@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { withRetry, withTimeout } from './utils';
-import { TransportTimeoutError } from '../types/errors';
 
 describe('utils', () => {
   class CustomTimeoutError extends Error {}
