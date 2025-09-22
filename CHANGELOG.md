@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.0]
 
-### Uncategorized
+### Added
 
 - feat: allow partial revokes via `wallet_revokeSession` ([#75](https://github.com/MetaMask/multichain-api-client/pull/75))
 
