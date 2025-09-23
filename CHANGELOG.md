@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0]
+
+### Uncategorized
+
+- build(deps-dev): bump vite in the npm_and_yarn group across 1 directory ([#72](https://github.com/MetaMask/multichain-api-client/pull/72))
+- build(deps-dev): bump @metamask/auto-changelog from 5.0.2 to 5.1.0 ([#74](https://github.com/MetaMask/multichain-api-client/pull/74))
+- fix: add timeout getMultichainClient to prevent remove connections fr… ([#73](https://github.com/MetaMask/multichain-api-client/pull/73))
+
 ## [0.7.0]
 
 ### Added
@@ -96,7 +104,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[Unreleased]: https://github.com/MetaMask/multichain-api-client/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/MetaMask/multichain-api-client/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/MetaMask/multichain-api-client/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.5...v0.7.0
 [0.6.5]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.4...v0.6.5
 [0.6.4]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.3...v0.6.4
