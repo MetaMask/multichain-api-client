@@ -149,4 +149,26 @@ describe('ExternallyConnectableTransport', () => {
     );
     await expect(transport.request({ method: 'wallet_getSession' }, { timeout: 10 })).rejects.toThrow(TransportError);
   });
+
+  it('should cleanup pending request after timeout allowing subsequent requests', async () => {
+    await transport.connect();
+    await expect(transport.request({ method: 'wallet_getSession' }, { timeout: 10 })).rejects.toThrow(
+      'Transport request timed out',
+    );
+
+    // Second request should work (id 2)
+    const secondPromise = transport.request({ method: 'wallet_getSession' });
+
+    messageHandler({
+      type: 'caip-348',
+      data: {
+        id: 2,
+        jsonrpc: '2.0',
+        result: mockSession,
+      },
+    });
+
+    const response = await secondPromise;
+    expect(response).toEqual({ id: 2, jsonrpc: '2.0', result: mockSession });
+  });
 });

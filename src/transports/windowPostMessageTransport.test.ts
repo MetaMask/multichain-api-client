@@ -313,4 +313,33 @@ describe('WindowPostMessageTransport', () => {
     );
     await expect(transport.request({ method: 'wallet_getSession' }, { timeout: 10 })).rejects.toThrow(TransportError);
   });
+
+  it('should cleanup pending request after timeout allowing subsequent requests', async () => {
+    await transport.connect();
+    // First request times out
+    await expect(transport.request({ method: 'wallet_getSession' }, { timeout: 10 })).rejects.toThrow(
+      'Transport request timed out',
+    );
+
+    // Second request should still work (simulate response)
+    const secondPromise = transport.request({ method: 'wallet_getSession' });
+
+    // Simulate response for id 2 (because first timed out with id 1, second increments to 2)
+    messageHandler({
+      data: {
+        target: INPAGE,
+        data: {
+          name: MULTICHAIN_SUBSTREAM_NAME,
+          data: {
+            id: 2,
+            result: mockSession,
+          },
+        },
+      },
+      origin: mockLocation.origin,
+    } as MessageEvent);
+
+    const result = await secondPromise;
+    expect(result).toEqual({ id: 2, result: mockSession });
+  });
 });

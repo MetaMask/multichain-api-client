@@ -133,14 +133,22 @@ export function getExternallyConnectableTransport(
         ...params,
       };
 
-      return await withTimeout(
-        new Promise((resolve) => {
-          pendingRequests.set(id, resolve);
-          currentChromePort.postMessage({ type: REQUEST_CAIP, data: requestPayload });
-        }),
-        timeout,
-        () => new TransportTimeoutError(),
-      );
+      try {
+        return await withTimeout(
+          new Promise((resolve) => {
+            pendingRequests.set(id, resolve);
+            currentChromePort.postMessage({ type: REQUEST_CAIP, data: requestPayload });
+          }),
+          timeout,
+          () => new TransportTimeoutError(),
+        );
+      } catch (err) {
+        // Ensure we cleanup pendingRequests on timeout (or any error before resolution) to avoid memory leaks
+        if (pendingRequests.has(id)) {
+          pendingRequests.delete(id);
+        }
+        throw err;
+      }
     },
     onNotification: (callback: (data: unknown) => void) => {
       notificationCallbacks.add(callback);

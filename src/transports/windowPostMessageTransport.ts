@@ -113,14 +113,21 @@ export function getWindowPostMessageTransport(params: { defaultTimeout?: number 
         ...params,
       };
 
-      return withTimeout(
-        new Promise((resolve) => {
-          pendingRequests.set(id, resolve);
+      return withTimeout<ReturnType>(
+        new Promise<ReturnType>((resolve) => {
+          // Resolve will actually get a TransportResponse<ReturnType>; we coerce at the end.
+          pendingRequests.set(id, (value) => resolve(value as ReturnType));
           sendRequest(request);
         }),
         timeout,
         () => new TransportTimeoutError(),
-      );
+      ).catch((err) => {
+        // Cleanup pending request on timeout (or other rejection before resolution) to prevent leaks
+        if (pendingRequests.has(id)) {
+          pendingRequests.delete(id);
+        }
+        throw err;
+      });
     },
 
     onNotification: (callback: (data: unknown) => void) => {
