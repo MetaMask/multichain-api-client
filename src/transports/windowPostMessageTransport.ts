@@ -1,6 +1,7 @@
-import { TransportError } from '../types/errors';
+import { withTimeout } from '../helpers/utils';
+import { TransportError, TransportTimeoutError } from '../types/errors';
 import type { Transport, TransportResponse } from '../types/transport';
-import { CONTENT_SCRIPT, INPAGE, MULTICHAIN_SUBSTREAM_NAME } from './constants';
+import { CONTENT_SCRIPT, DEFAULT_REQUEST_TIMEOUT, INPAGE, MULTICHAIN_SUBSTREAM_NAME } from './constants';
 
 /**
  * Creates a transport that communicates with the MetaMask extension via window.postMessage
@@ -15,7 +16,8 @@ import { CONTENT_SCRIPT, INPAGE, MULTICHAIN_SUBSTREAM_NAME } from './constants';
  * const result = await transport.request({ method: 'eth_getBalance', params: ['0x123', 'latest'] });
  * ```
  */
-export function getWindowPostMessageTransport(): Transport {
+export function getWindowPostMessageTransport(params: { defaultTimeout?: number } = {}): Transport {
+  const { defaultTimeout = DEFAULT_REQUEST_TIMEOUT } = params;
   let messageListener: ((event: MessageEvent) => void) | null = null;
   const pendingRequests: Map<number, (value: any) => void> = new Map();
   let requestId = 1;
@@ -93,10 +95,13 @@ export function getWindowPostMessageTransport(): Transport {
 
       window.addEventListener('message', messageListener);
     },
-
     disconnect,
     isConnected,
-    request: <ParamsType extends Object, ReturnType extends Object>(params: ParamsType): Promise<ReturnType> => {
+    request: <ParamsType extends Object, ReturnType extends Object>(
+      params: ParamsType,
+      options: { timeout?: number } = {},
+    ): Promise<ReturnType> => {
+      const { timeout = defaultTimeout } = options;
       if (!isConnected()) {
         throw new TransportError('Transport not connected');
       }
@@ -108,9 +113,20 @@ export function getWindowPostMessageTransport(): Transport {
         ...params,
       };
 
-      return new Promise((resolve) => {
-        pendingRequests.set(id, resolve);
-        sendRequest(request);
+      return withTimeout<ReturnType>(
+        new Promise<ReturnType>((resolve) => {
+          // Resolve will actually get a TransportResponse<ReturnType>; we coerce at the end.
+          pendingRequests.set(id, (value) => resolve(value as ReturnType));
+          sendRequest(request);
+        }),
+        timeout,
+        () => new TransportTimeoutError(),
+      ).catch((err) => {
+        // Cleanup pending request on timeout (or other rejection before resolution) to prevent leaks
+        if (pendingRequests.has(id)) {
+          pendingRequests.delete(id);
+        }
+        throw err;
       });
     },
 

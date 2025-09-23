@@ -1,3 +1,6 @@
+// chrome is a global injected by browser extensions
+declare const chrome: any;
+
 /**
  * Detects if we're in a Chrome-like environment with extension support
  */
@@ -17,22 +20,15 @@ export async function withRetry<T>(
   fn: () => Promise<T>,
   options: {
     maxRetries?: number;
-    requestTimeout?: number;
     retryDelay?: number;
+    timeoutErrorClass?: new (...args: any[]) => Error;
   } = {},
 ): Promise<T> {
-  const { maxRetries = 10, requestTimeout = 200, retryDelay = requestTimeout } = options;
-  const errorMessage = 'Timeout reached';
+  const { maxRetries = 10, retryDelay = 200, timeoutErrorClass } = options;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      // Use Promise.race to implement timeout
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error(errorMessage)), requestTimeout);
-      });
-
-      const result = await Promise.race([fn(), timeoutPromise]);
-      return result;
+      return await fn();
     } catch (error) {
       // If this was the last attempt, throw the error
       if (attempt >= maxRetries) {
@@ -40,12 +36,41 @@ export async function withRetry<T>(
       }
 
       // Wait before retrying (unless it was a timeout, then retry immediately)
-      if (error instanceof Error && error.message !== errorMessage) {
-        await new Promise((resolve) => setTimeout(resolve, retryDelay));
+      if (timeoutErrorClass && typeof timeoutErrorClass === 'function' && error instanceof timeoutErrorClass) {
+        continue;
       }
+
+      await new Promise((resolve) => setTimeout(resolve, retryDelay));
     }
   }
 
   // This should never be reached due to the throw in the loop
   throw new Error('Max retries exceeded');
+}
+
+/**
+ * Returns a promise that resolves or rejects like the given promise, but fails if the timeout is exceeded.
+ * @param promise - The promise to monitor
+ * @param timeoutMs - Maximum duration in ms
+ * @param errorFactory - Optional callback to generate a custom error on timeout
+ */
+export function withTimeout<T>(promise: Promise<T>, timeoutMs: number, errorFactory?: () => Error): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      if (errorFactory) {
+        reject(errorFactory());
+      } else {
+        reject(new Error(`Timeout after ${timeoutMs}ms`));
+      }
+    }, timeoutMs);
+    promise
+      .then((value) => {
+        clearTimeout(timer);
+        resolve(value);
+      })
+      .catch((err) => {
+        clearTimeout(timer);
+        reject(err);
+      });
+  });
 }

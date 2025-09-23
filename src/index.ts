@@ -20,9 +20,14 @@ import type { Transport } from './types/transport';
  * const transport = getDefaultTransport({ extensionId: '...' });
  * ```
  */
-function getDefaultTransport(params: { extensionId?: string } = {}): Transport {
+function getDefaultTransport({
+  extensionId,
+  defaultTimeout,
+}: { extensionId?: string; defaultTimeout?: number } = {}): Transport {
   const isChrome = isChromeRuntime();
-  return isChrome ? getExternallyConnectableTransport(params) : getWindowPostMessageTransport();
+  return isChrome
+    ? getExternallyConnectableTransport({ extensionId, defaultTimeout })
+    : getWindowPostMessageTransport({ defaultTimeout });
 }
 
 export { getMultichainClient, getDefaultTransport, getExternallyConnectableTransport, getWindowPostMessageTransport };

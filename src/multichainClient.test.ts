@@ -1,9 +1,15 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getMockTransport, mockScope, mockSession } from '../tests/mocks';
 import { getMultichainClient } from './multichainClient';
+import { TransportTimeoutError } from './types/errors';
+import type { Transport } from './types/transport';
 
 const mockTransport = getMockTransport();
 describe('getMultichainClient', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('should create a client with all required methods', async () => {
     const client = getMultichainClient({ transport: mockTransport });
 
@@ -20,10 +26,17 @@ describe('getMultichainClient', () => {
     const result = await client.createSession(params);
 
     expect(result).toEqual(mockSession);
-    expect(mockTransport.request).toHaveBeenCalledWith({
-      method: 'wallet_createSession',
-      params,
-    });
+    // First call from initialization
+    expect(mockTransport.request).toHaveBeenNthCalledWith(1, { method: 'wallet_getSession' });
+    // Second call is the createSession request including options object
+    expect(mockTransport.request).toHaveBeenNthCalledWith(
+      2,
+      {
+        method: 'wallet_createSession',
+        params,
+      },
+      { timeout: undefined },
+    );
   });
 
   it('should get session successfully', async () => {
@@ -41,10 +54,11 @@ describe('getMultichainClient', () => {
       const client = getMultichainClient({ transport: mockTransport });
       await client.revokeSession({});
 
-      expect(mockTransport.request).toHaveBeenCalledWith({
-        method: 'wallet_revokeSession',
-        params: {},
-      });
+      expect(mockTransport.request).toHaveBeenNthCalledWith(
+        2,
+        { method: 'wallet_revokeSession', params: {} },
+        { timeout: undefined },
+      );
     });
 
     it('should disconnect transport after revoking session', async () => {
@@ -71,20 +85,25 @@ describe('getMultichainClient', () => {
       },
     });
     expect(signAndSendResult).toEqual({ signature: 'mock-signature' });
-    expect(mockTransport.request).toHaveBeenLastCalledWith({
-      method: 'wallet_invokeMethod',
-      params: {
-        scope: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpK',
-        request: {
-          method: 'signAndSendTransaction',
-          params: {
-            account: { address: 'mock-address' },
-            transaction: 'mock-transaction',
-            scope: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpK',
+    expect(mockTransport.request).toHaveBeenNthCalledWith(1, { method: 'wallet_getSession' });
+    expect(mockTransport.request).toHaveBeenNthCalledWith(
+      2,
+      {
+        method: 'wallet_invokeMethod',
+        params: {
+          scope: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpK',
+          request: {
+            method: 'signAndSendTransaction',
+            params: {
+              account: { address: 'mock-address' },
+              transaction: 'mock-transaction',
+              scope: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpK',
+            },
           },
         },
       },
-    });
+      { timeout: undefined },
+    );
 
     // Test signMessage
     const signMessageResult = await client.invokeMethod({
@@ -118,5 +137,18 @@ describe('getMultichainClient', () => {
 
     expect(mockIsConnected).toHaveBeenCalled();
     expect(mockConnect).toHaveBeenCalled();
+  });
+
+  it('should timeout if transport is too slow', async () => {
+    const slowTransport: Transport = {
+      ...mockTransport,
+      request: vi.fn(() => {
+        throw new TransportTimeoutError();
+      }) as Transport['request'],
+      connect: vi.fn(() => Promise.resolve()),
+      isConnected: vi.fn(() => false),
+    };
+    const client = getMultichainClient({ transport: slowTransport });
+    await expect(client.getSession()).rejects.toThrow('Transport request timed out');
   });
 });

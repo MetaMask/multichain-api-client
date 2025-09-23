@@ -126,7 +126,7 @@ describe('ExternallyConnectableTransport', () => {
   });
 
   it('should throw error when making request while disconnected', async () => {
-    expect(() => transport.request({ method: 'wallet_getSession' })).toThrow(
+    await expect(() => transport.request({ method: 'wallet_getSession' })).rejects.toThrow(
       new TransportError('Chrome port not connected'),
     );
   });
@@ -139,5 +139,36 @@ describe('ExternallyConnectableTransport', () => {
     const error = await transport.connect().catch((e) => e);
     expect(error).toBeInstanceOf(TransportError);
     expect(error.message).toBe('Failed to connect to MetaMask');
+  });
+
+  it('should timeout if no response is received', async () => {
+    await transport.connect();
+    // On ne simule pas de réponse, la promesse doit timeout
+    await expect(transport.request({ method: 'wallet_getSession' }, { timeout: 10 })).rejects.toThrow(
+      'Transport request timed out',
+    );
+    await expect(transport.request({ method: 'wallet_getSession' }, { timeout: 10 })).rejects.toThrow(TransportError);
+  });
+
+  it('should cleanup pending request after timeout allowing subsequent requests', async () => {
+    await transport.connect();
+    await expect(transport.request({ method: 'wallet_getSession' }, { timeout: 10 })).rejects.toThrow(
+      'Transport request timed out',
+    );
+
+    // Second request should work (id 2)
+    const secondPromise = transport.request({ method: 'wallet_getSession' });
+
+    messageHandler({
+      type: 'caip-348',
+      data: {
+        id: 2,
+        jsonrpc: '2.0',
+        result: mockSession,
+      },
+    });
+
+    const response = await secondPromise;
+    expect(response).toEqual({ id: 2, jsonrpc: '2.0', result: mockSession });
   });
 });

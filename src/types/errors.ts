@@ -15,3 +15,9 @@ export class TransportError extends Error {
     Object.setPrototypeOf(this, this.constructor.prototype);
   }
 }
+
+export class TransportTimeoutError extends TransportError {
+  constructor(message = 'Transport request timed out', originalError?: unknown) {
+    super(message, originalError);
+  }
+}

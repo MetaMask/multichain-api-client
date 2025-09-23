@@ -18,6 +18,7 @@ import type { Transport, TransportRequest, TransportResponse } from './types/tra
  *
  * @param options - Configuration options for the client
  * @param options.transport - The transport layer to use for communication with the wallet
+ * @param options.requestTimeout - Maximum delay before aborting each request attempt
  * @returns A promise that resolves to a MultichainApiClient instance
  *
  * @example
@@ -43,7 +44,9 @@ import type { Transport, TransportRequest, TransportResponse } from './types/tra
  */
 export function getMultichainClient<T extends RpcApi = DefaultRpcApi>({
   transport,
-}: { transport: Transport }): MultichainApiClient<T> {
+}: {
+  transport: Transport;
+}): MultichainApiClient<T> {
   let initializationPromise: Promise<void> | undefined = undefined;
   let connectionPromise: Promise<void> | undefined = undefined;
 
@@ -111,15 +114,23 @@ async function request<T extends RpcApi, M extends MultichainApiMethod>({
   transport,
   method,
   params,
+  timeout,
 }: {
   transport: Transport;
   method: M;
   params?: MultichainApiParams<T, M>;
+  timeout?: number;
 }): Promise<MultichainApiReturn<T, M>> {
   const res = await transport.request<
     TransportRequest<M, MultichainApiParams<T, M>>,
     TransportResponse<MultichainApiReturn<T, M>>
-  >({ method, params });
+  >(
+    {
+      method,
+      params,
+    },
+    { timeout },
+  );
 
   if (res?.error) {
     throw new MultichainApiError(res.error);

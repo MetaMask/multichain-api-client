@@ -32,6 +32,15 @@ const result = await client.invokeMethod({
 await client.revokeSession();
 ```
 
+### Configuring Transport Timeout
+
+You can configure a default timeout (in milliseconds) for all requests made through the transport by passing the `defaultTimeout` option to `getDefaultTransport`:
+
+```typescript
+const transport = getDefaultTransport({ defaultTimeout: 5000 }); // 5 seconds timeout for all requests
+const client = getMultichainClient({ transport });
+```
+
 ## Extending RPC Types
 
 The client's RPC requests are strongly typed, enforcing the RPC methods and params to be defined ahead of usage. The client supports extending
@@ -78,6 +87,16 @@ const result = await client.invokeMethod({
 
 Transports handle the communication layer between your application and the wallet. You can create custom transports for different environments or communication methods.
 
+### Timeout Responsibility
+
+It is recommended that each custom transport implements its own request timeout mechanism rather than relying on higher layers. This ensures:
+
+- Transport-specific optimizations (e.g., aborting underlying network channels, clearing listeners)
+- Consistent error semantics (e.g., always throwing a dedicated `TransportTimeoutError` or custom error type)
+- Better resource cleanup in environments like browsers or workers
+
+Your `request` implementation should accept an optional `{ timeout?: number }` argument.
+
 ### Transport Interface
 
 A transport must implement the following interface:
@@ -87,7 +106,10 @@ type Transport = {
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
   isConnected: () => boolean;
-  request: <TRequest, TResponse>(request: TRequest) => Promise<TResponse>;
+  request: <TRequest, TResponse>(
+    request: TRequest,
+    options?: { timeout?: number }
+  ) => Promise<TResponse>;
   onNotification: (callback: (data: unknown) => void) => () => void;
 };
 ```
@@ -95,21 +117,36 @@ type Transport = {
 ### Example: Custom Transport
 
 ```typescript
+import { TransportError, TransportTimeoutError } from '@metamask/multichain-api-client';
 import type { Transport, TransportRequest, TransportResponse } from '@metamask/multichain-api-client';
 
-export function getCustomTransport(): Transport {
+type CustomTransportOptions = {
+  defaultTimeout?: number; // ms
+};
+
+export function getCustomTransport(options: CustomTransportOptions = {}): Transport {
+  const { defaultTimeout = 5000 } = options;
+
   return {
     connect: async () => { ... },
     disconnect: async () => { ... },
     isConnected: () => { ...},
-    request: async <TRequest extends TransportRequest, TResponse extends TransportResponse>( request: TRequest ): Promise<TResponse> => { ... },
+    request: async <TRequest extends TransportRequest, TResponse extends TransportResponse>( request: TRequest, { timeout }: { timeout?: number } = {}): Promise<TResponse> => { ... },
     onNotification: (callback: (data: unknown) => void) => { ... },
   };
 }
 
 // Usage
-const transport = getCustomTransport();
+const transport = getCustomTransport({ defaultTimeout: 8000 });
 const client = getMultichainClient({ transport });
+
+// Per-request override
+await client.invokeMethod({
+  scope: 'eip155:1',
+  request: { method: 'eth_chainId', params: [] },
+  // The transport's request implementation can expose a timeout override
+  { timeout: 10000  // 10 seconds timeout for this request only
+});
 ```
 
 ## Error Handling

@@ -35,10 +35,15 @@ export type Transport = {
    * @template TRequest - The request type containing method and params
    * @template TResponse - The expected response type
    * @param request - Request object with method and optional params
+   * @param options - Optional settings for the request
+   * @param options.timeout - Maximum time (in ms) before the request fails with a timeout error. Overrides the transport's default timeout if set.
    * @returns A promise that resolves to the response
    */
   request: <TRequest extends TransportRequest, TResponse extends TransportResponse>(
     request: TRequest,
+    options?: {
+      timeout?: number;
+    },
   ) => Promise<TResponse>;
 
   /**
