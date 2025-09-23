@@ -9,11 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.0]
 
-### Uncategorized
+### Added
 
-- build(deps-dev): bump vite in the npm_and_yarn group across 1 directory ([#72](https://github.com/MetaMask/multichain-api-client/pull/72))
-- build(deps-dev): bump @metamask/auto-changelog from 5.0.2 to 5.1.0 ([#74](https://github.com/MetaMask/multichain-api-client/pull/74))
-- fix: add timeout getMultichainClient to prevent remove connections fr… ([#73](https://github.com/MetaMask/multichain-api-client/pull/73))
+- fix: add timeout feature in transport to prevent remove connections from dropping ([#73](https://github.com/MetaMask/multichain-api-client/pull/73))
 
 ## [0.7.0]
 
