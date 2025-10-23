@@ -1,3 +1,4 @@
+import type { BitcoinRpc } from './bitcoin.types';
 import type { Eip155Rpc } from './eip155.types';
 import type { SolanaRpc } from './solana.types';
 
@@ -32,4 +33,5 @@ export type MethodReturn<T extends RpcApi, S extends Scope<T>, M extends MethodN
 export type DefaultRpcApi = {
   eip155: Eip155Rpc;
   solana: SolanaRpc;
+  bip122: BitcoinRpc;
 };
