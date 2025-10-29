@@ -15,7 +15,7 @@ type Utxo = {
   address?: string;
 };
 
-export type BitcoinRpc = {
+export type Bip122Rpc = {
   methods: {
     signMessage: RpcMethod<
       {
