@@ -24,10 +24,14 @@ global.location = mockLocation as any;
 describe('WindowPostMessageTransport', () => {
   let transport: ReturnType<typeof getWindowPostMessageTransport>;
   let messageHandler: (event: MessageEvent) => void;
+  const MOCK_INITIAL_REQUEST_ID = 1000;
 
   beforeEach(() => {
     // Reset mocks
     vi.clearAllMocks();
+
+    // Mock Date.now() to return a fixed value for predictable request IDs
+    vi.spyOn(Date, 'now').mockReturnValue(MOCK_INITIAL_REQUEST_ID);
 
     // Setup addEventListener mock to capture the message handler
     mockWindow.addEventListener.mockImplementation((event: string, handler: (event: MessageEvent) => void) => {
@@ -62,7 +66,7 @@ describe('WindowPostMessageTransport', () => {
           name: MULTICHAIN_SUBSTREAM_NAME,
           data: {
             jsonrpc: '2.0',
-            id: 1,
+            id: MOCK_INITIAL_REQUEST_ID,
             method: 'wallet_getSession',
           },
         },
@@ -77,7 +81,7 @@ describe('WindowPostMessageTransport', () => {
         data: {
           name: MULTICHAIN_SUBSTREAM_NAME,
           data: {
-            id: 1,
+            id: MOCK_INITIAL_REQUEST_ID,
             result: mockSession,
           },
         },
@@ -87,7 +91,7 @@ describe('WindowPostMessageTransport', () => {
 
     const response = await requestPromise;
     expect(response).toEqual({
-      id: 1,
+      id: MOCK_INITIAL_REQUEST_ID,
       result: mockSession,
     });
   });
@@ -260,7 +264,7 @@ describe('WindowPostMessageTransport', () => {
         data: {
           name: MULTICHAIN_SUBSTREAM_NAME,
           data: {
-            id: 2,
+            id: MOCK_INITIAL_REQUEST_ID + 1,
             result: { success: true },
           },
         },
@@ -274,7 +278,7 @@ describe('WindowPostMessageTransport', () => {
         data: {
           name: MULTICHAIN_SUBSTREAM_NAME,
           data: {
-            id: 1,
+            id: MOCK_INITIAL_REQUEST_ID,
             result: mockSession,
           },
         },
@@ -284,11 +288,11 @@ describe('WindowPostMessageTransport', () => {
 
     const [response1, response2] = await Promise.all([request1Promise, request2Promise]);
     expect(response1).toEqual({
-      id: 1,
+      id: MOCK_INITIAL_REQUEST_ID,
       result: mockSession,
     });
     expect(response2).toEqual({
-      id: 2,
+      id: MOCK_INITIAL_REQUEST_ID + 1,
       result: { success: true },
     });
   });
@@ -324,14 +328,14 @@ describe('WindowPostMessageTransport', () => {
     // Second request should still work (simulate response)
     const secondPromise = transport.request({ method: 'wallet_getSession' });
 
-    // Simulate response for id 2 (because first timed out with id 1, second increments to 2)
+    // Simulate response for id MOCK_INITIAL_REQUEST_ID + 1 (because first timed out with id MOCK_INITIAL_REQUEST_ID, second increments to MOCK_INITIAL_REQUEST_ID + 1)
     messageHandler({
       data: {
         target: INPAGE,
         data: {
           name: MULTICHAIN_SUBSTREAM_NAME,
           data: {
-            id: 2,
+            id: MOCK_INITIAL_REQUEST_ID + 1,
             result: mockSession,
           },
         },
@@ -340,6 +344,6 @@ describe('WindowPostMessageTransport', () => {
     } as MessageEvent);
 
     const result = await secondPromise;
-    expect(result).toEqual({ id: 2, result: mockSession });
+    expect(result).toEqual({ id: MOCK_INITIAL_REQUEST_ID + 1, result: mockSession });
   });
 });

@@ -20,7 +20,7 @@ export function getWindowPostMessageTransport(params: { defaultTimeout?: number 
   const { defaultTimeout = DEFAULT_REQUEST_TIMEOUT } = params;
   let messageListener: ((event: MessageEvent) => void) | null = null;
   const pendingRequests: Map<number, (value: any) => void> = new Map();
-  let requestId = 1;
+  let requestId = Date.now();
   /**
    * Storing notification callbacks.
    * If we detect a "notification" (a message without an id) coming from the extension, we'll call each callback in here.
