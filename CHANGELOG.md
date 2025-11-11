@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- fix: use timestamp based request id on `windowPostMessageTransport` to avoid conflicts across disconnect/reconnect cycles in firefox ([#81](https://github.com/MetaMask/multichain-api-client/pull/81))
+- fix: use randomly generated request id on `windowPostMessageTransport` and `externallyConnectableTransport` to avoid conflicts across disconnect/reconnect cycles in firefox ([#81](https://github.com/MetaMask/multichain-api-client/pull/81))
 
 ## [0.8.0]
 
