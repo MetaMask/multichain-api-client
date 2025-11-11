@@ -28,7 +28,7 @@ export function getExternallyConnectableTransport(
   let { extensionId } = params;
   const { defaultTimeout = DEFAULT_REQUEST_TIMEOUT } = params;
   let chromePort: chrome.runtime.Port | undefined;
-  let requestId = getUniqueId()
+  let requestId = getUniqueId();
   const pendingRequests = new Map<number, (value: any) => void>();
 
   /**
