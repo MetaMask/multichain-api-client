@@ -26,7 +26,6 @@ describe('WindowPostMessageTransport', () => {
   let transport: ReturnType<typeof getWindowPostMessageTransport>;
   let messageHandler: (event: MessageEvent) => void;
   const MOCK_INITIAL_REQUEST_ID = 1000;
-  let getUniqueIdMock: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     // Reset mocks
@@ -34,7 +33,7 @@ describe('WindowPostMessageTransport', () => {
 
     // Mock getUniqueId() to return sequential values starting from MOCK_INITIAL_REQUEST_ID
     let requestIdCounter = MOCK_INITIAL_REQUEST_ID;
-    getUniqueIdMock = vi.spyOn(utils, 'getUniqueId').mockImplementation(() => {
+    vi.spyOn(utils, 'getUniqueId').mockImplementation(() => {
       return requestIdCounter++;
     });
 
