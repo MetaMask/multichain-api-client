@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockSession } from '../../tests/mocks';
+import * as utils from '../helpers/utils';
 import { TransportError } from '../types/errors';
 import { CONTENT_SCRIPT, INPAGE, MULTICHAIN_SUBSTREAM_NAME } from './constants';
 import { getWindowPostMessageTransport } from './windowPostMessageTransport';
@@ -25,13 +26,17 @@ describe('WindowPostMessageTransport', () => {
   let transport: ReturnType<typeof getWindowPostMessageTransport>;
   let messageHandler: (event: MessageEvent) => void;
   const MOCK_INITIAL_REQUEST_ID = 1000;
+  let getUniqueIdMock: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     // Reset mocks
     vi.clearAllMocks();
 
-    // Mock Date.now() to return a fixed value for predictable request IDs
-    vi.spyOn(Date, 'now').mockReturnValue(MOCK_INITIAL_REQUEST_ID);
+    // Mock getUniqueId() to return sequential values starting from MOCK_INITIAL_REQUEST_ID
+    let requestIdCounter = MOCK_INITIAL_REQUEST_ID;
+    getUniqueIdMock = vi.spyOn(utils, 'getUniqueId').mockImplementation(() => {
+      return requestIdCounter++;
+    });
 
     // Setup addEventListener mock to capture the message handler
     mockWindow.addEventListener.mockImplementation((event: string, handler: (event: MessageEvent) => void) => {
