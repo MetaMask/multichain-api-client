@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { type MockPort, mockSession } from '../../tests/mocks';
 import * as metamaskExtensionId from '../helpers/metamaskExtensionId';
+import * as utils from '../helpers/utils';
 import { TransportError } from '../types/errors';
 import { getExternallyConnectableTransport } from './externallyConnectableTransport';
 
@@ -19,10 +20,17 @@ describe('ExternallyConnectableTransport', () => {
   let transport: ReturnType<typeof getExternallyConnectableTransport>;
   let messageHandler: (msg: any) => void;
   let disconnectHandler: () => void;
+  const MOCK_INITIAL_REQUEST_ID = 1000;
 
   let mockPort: MockPort;
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Mock getUniqueId() to return sequential values starting from MOCK_INITIAL_REQUEST_ID
+    let requestIdCounter = MOCK_INITIAL_REQUEST_ID;
+    vi.spyOn(utils, 'getUniqueId').mockImplementation(() => {
+      return requestIdCounter++;
+    });
 
     // Setup mock port
     mockPort = {
@@ -80,7 +88,7 @@ describe('ExternallyConnectableTransport', () => {
     messageHandler({
       type: 'caip-348',
       data: {
-        id: 1,
+        id: MOCK_INITIAL_REQUEST_ID,
         jsonrpc: '2.0',
         result: mockSession,
       },
@@ -91,7 +99,7 @@ describe('ExternallyConnectableTransport', () => {
     expect(mockPort.postMessage).toHaveBeenCalledWith({
       type: 'caip-348',
       data: {
-        id: 1,
+        id: MOCK_INITIAL_REQUEST_ID,
         jsonrpc: '2.0',
         method: 'wallet_getSession',
       },
@@ -156,19 +164,19 @@ describe('ExternallyConnectableTransport', () => {
       'Transport request timed out',
     );
 
-    // Second request should work (id 2)
+    // Second request should work (id MOCK_INITIAL_REQUEST_ID + 1)
     const secondPromise = transport.request({ method: 'wallet_getSession' });
 
     messageHandler({
       type: 'caip-348',
       data: {
-        id: 2,
+        id: MOCK_INITIAL_REQUEST_ID + 1,
         jsonrpc: '2.0',
         result: mockSession,
       },
     });
 
     const response = await secondPromise;
-    expect(response).toEqual({ id: 2, jsonrpc: '2.0', result: mockSession });
+    expect(response).toEqual({ id: MOCK_INITIAL_REQUEST_ID + 1, jsonrpc: '2.0', result: mockSession });
   });
 });

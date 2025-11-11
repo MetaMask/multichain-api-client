@@ -1,5 +1,5 @@
 import { detectMetamaskExtensionId } from '../helpers/metamaskExtensionId';
-import { withTimeout } from '../helpers/utils';
+import { getUniqueId, withTimeout } from '../helpers/utils';
 import { TransportError, TransportTimeoutError } from '../types/errors';
 import type { Transport, TransportResponse } from '../types/transport';
 import { DEFAULT_REQUEST_TIMEOUT, REQUEST_CAIP } from './constants';
@@ -28,7 +28,7 @@ export function getExternallyConnectableTransport(
   let { extensionId } = params;
   const { defaultTimeout = DEFAULT_REQUEST_TIMEOUT } = params;
   let chromePort: chrome.runtime.Port | undefined;
-  let requestId = 1;
+  let requestId = getUniqueId();
   const pendingRequests = new Map<number, (value: any) => void>();
 
   /**

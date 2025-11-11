@@ -1,4 +1,4 @@
-import { withTimeout } from '../helpers/utils';
+import { getUniqueId, withTimeout } from '../helpers/utils';
 import { TransportError, TransportTimeoutError } from '../types/errors';
 import type { Transport, TransportResponse } from '../types/transport';
 import { CONTENT_SCRIPT, DEFAULT_REQUEST_TIMEOUT, INPAGE, MULTICHAIN_SUBSTREAM_NAME } from './constants';
@@ -20,7 +20,7 @@ export function getWindowPostMessageTransport(params: { defaultTimeout?: number 
   const { defaultTimeout = DEFAULT_REQUEST_TIMEOUT } = params;
   let messageListener: ((event: MessageEvent) => void) | null = null;
   const pendingRequests: Map<number, (value: any) => void> = new Map();
-  let requestId = 1;
+  let requestId = getUniqueId();
   /**
    * Storing notification callbacks.
    * If we detect a "notification" (a message without an id) coming from the extension, we'll call each callback in here.
