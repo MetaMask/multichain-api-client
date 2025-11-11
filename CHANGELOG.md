@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1]
+
 ### Fixed
 
 - fix: use randomly generated request id on `windowPostMessageTransport` and `externallyConnectableTransport` to avoid conflicts across disconnect/reconnect cycles in firefox ([#81](https://github.com/MetaMask/multichain-api-client/pull/81))
@@ -106,7 +108,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[Unreleased]: https://github.com/MetaMask/multichain-api-client/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/MetaMask/multichain-api-client/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/MetaMask/multichain-api-client/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/MetaMask/multichain-api-client/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.5...v0.7.0
 [0.6.5]: https://github.com/MetaMask/multichain-api-client/compare/v0.6.4...v0.6.5
