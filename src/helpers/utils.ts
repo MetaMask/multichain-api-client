@@ -16,7 +16,7 @@ let idCounter = Math.floor(Math.random() * MAX);
 export const getUniqueId = (): number => {
   idCounter = (idCounter + 1) % MAX;
   return idCounter;
-}
+};
 
 /**
  * Detects if we're in a Chrome-like environment with extension support
