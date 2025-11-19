@@ -36,4 +36,5 @@ export { getMultichainClient, getDefaultTransport, getExternallyConnectableTrans
 export type * from './types/transport';
 export type * from './types/session';
 export type * from './types/multichainApi';
+export type * from './types/scopes';
 export * from './types/errors';

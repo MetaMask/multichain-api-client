@@ -46,6 +46,21 @@ expectType<`0x${string}`>(
   }),
 );
 
+// Basic tron signMessage call with correct scope and parameters
+expectType<{ signature: string }>(
+  await client.invokeMethod({
+    scope: 'tron:728126428',
+    request: {
+      method: 'signMessage',
+      params: {
+        chainId: 'tron:728126428',
+        address: 'TJRabPrwbZy45sbavfcjinPJC18kjpRTv8',
+        message: 'hello world',
+      },
+    },
+  }),
+);
+
 // ==========================================
 // Test error cases for invalid inputs
 // ==========================================
