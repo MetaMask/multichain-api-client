@@ -1,5 +1,6 @@
 import type { Eip155Rpc } from './eip155.types';
 import type { SolanaRpc } from './solana.types';
+import type { TronRpc } from './tron.types';
 
 export type RpcApi = Record<
   string,
@@ -32,4 +33,5 @@ export type MethodReturn<T extends RpcApi, S extends Scope<T>, M extends MethodN
 export type DefaultRpcApi = {
   eip155: Eip155Rpc;
   solana: SolanaRpc;
+  tron: TronRpc;
 };

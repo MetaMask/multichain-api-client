@@ -46,6 +46,20 @@ expectType<`0x${string}`>(
   }),
 );
 
+// Basic tron signMessage call with correct scope and parameters
+expectType<{ signature: string }>(
+  await client.invokeMethod({
+    scope: 'tron:1',
+    request: {
+      method: 'signMessage',
+      params: {
+        message: 'hello world',
+        privateKey: 'your_private_key',
+      },
+    },
+  }),
+);
+
 // ==========================================
 // Test error cases for invalid inputs
 // ==========================================

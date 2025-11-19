@@ -60,6 +60,7 @@
     "@yarnpkg/types": "^4.0.0-rc.52",
     "depcheck": "^1.4.3",
     "prettier": "^3.5.3",
+    "tronweb": "^6.1.0",
     "ts-node": "^10.7.0",
     "tsd": "^0.31.2",
     "typedoc": "^0.26.11",
