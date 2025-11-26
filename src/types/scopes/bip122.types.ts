@@ -1,7 +1,5 @@
 import type { RpcMethod } from '.';
 
-export type Commitment = 'processed' | 'confirmed' | 'finalized';
-
 type Utxo = {
   // Outpoint of the utxo in the format <txid>:<vout>
   outpoint: string;
