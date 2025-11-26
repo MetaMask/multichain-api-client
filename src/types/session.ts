@@ -1,6 +1,21 @@
-type CaipAccountId = `${string}:${string}:${string}`;
-type CaipChainId = `${string}:${string}`;
-type Json =
+/**
+ * CAIP-10 Account ID type.
+ * Format: `<namespace>:<reference>:<address>`
+ * Example: `eip155:1:0xabc123...`
+ */
+export type CaipAccountId = `${string}:${string}:${string}`;
+
+/**
+ * CAIP Chain ID type.
+ * Format: `<namespace>:<reference>`
+ * Example:
+ *  - `eip155:1`
+ *  - `solana:mainnet`
+ *  - `tron:728126428`
+ */
+export type CaipChainId = `${string}:${string}`;
+
+export type Json =
   | string
   | number
   | boolean
