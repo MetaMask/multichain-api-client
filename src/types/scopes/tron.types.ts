@@ -2,6 +2,16 @@ import type { RpcMethod } from '.';
 import type { CaipChainId } from '../session';
 
 /**
+ * A Base64-encoded message string.
+ * @example
+ * ```typescript
+ * const message = "Hello, Tron!";
+ * const base64Message = Buffer.from(message).toString('base64');
+ * ```
+ */
+export type Base64Message = string;
+
+/**
  * A TronWeb transaction in serialized base64 format.
  * @see https://github.com/tronprotocol/tronweb/blob/master/src/types/Transaction.ts
  *
@@ -49,16 +59,14 @@ export type Signature = `${string}`;
  * Signs a plain text message.
  * The signature can be used to verify ownership of the account.
  *
- * @param chainId - CAIP-2 chain ID identifying the Tron network (e.g., "tron:0x2b6653dc")
  * @param address - The Tron address that will sign the message
- * @param message - The message string to be signed
+ * @param message - The message string in Base64 format to be signed
  * @returns An object containing the hexadecimal signature of the message
  */
 export type SignMessageMethod = RpcMethod<
   {
-    chainId: CaipChainId;
     address: TronAddress;
-    message: string;
+    message: Base64Message;
   },
   { signature: Signature }
 >;
@@ -67,14 +75,14 @@ export type SignMessageMethod = RpcMethod<
  * Signs a Tron transaction.
  * The transaction must be provided as a base64-encoded serialized transaction string.
  *
- * @param chainId - CAIP-2 chain ID identifying the Tron network (e.g., "tron:0x2b6653dc")
+ * @param scope - CAIP-2 chain ID identifying the Tron network (e.g., "tron:0x2b6653dc")
  * @param address - The Tron address that will sign the transaction
  * @param transaction - The Tron transaction in serialized base64 format
  * @returns An object containing the hexadecimal signature of the transaction
  */
 export type SignTransactionMethod = RpcMethod<
   {
-    chainId: CaipChainId;
+    scope: CaipChainId;
     address: TronAddress;
     transaction: Base64Transaction;
   },
