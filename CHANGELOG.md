@@ -9,11 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.0]
 
-### Uncategorized
+### Added
 
-- build(deps): bump the npm_and_yarn group across 1 directory with 2 updates
 - feat: add Bitcoin support ([#80](https://github.com/MetaMask/multichain-api-client/pull/80))
-- build(deps-dev): bump vite in the npm_and_yarn group across 1 directory
 
 ## [0.8.1]
 
