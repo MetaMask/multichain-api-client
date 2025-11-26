@@ -1,15 +1,15 @@
 import type { RpcMethod } from '.';
 
 // Base types
-type HexString = `0x${string}`;
-type Address = `0x${string}`;
-type Hash32 = `0x${string}`;
-type BlockTag = 'earliest' | 'finalized' | 'safe' | 'latest' | 'pending';
-type BlockNumberOrTag = HexString | BlockTag;
-type BlockNumberOrTagOrHash = HexString | BlockTag | Hash32;
+export type HexString = `0x${string}`;
+export type Address = `0x${string}`;
+export type Hash32 = `0x${string}`;
+export type BlockTag = 'earliest' | 'finalized' | 'safe' | 'latest' | 'pending';
+export type BlockNumberOrTag = HexString | BlockTag;
+export type BlockNumberOrTagOrHash = HexString | BlockTag | Hash32;
 
 // Complex types for method parameters and responses
-interface AddEthereumChainParameter {
+export interface AddEthereumChainParameter {
   chainId: HexString;
   chainName: string;
   nativeCurrency: {
@@ -22,7 +22,7 @@ interface AddEthereumChainParameter {
   iconUrls?: string[];
 }
 
-interface TypedData {
+export interface TypedData {
   types: {
     EIP712Domain: Array<{
       name: string;
@@ -38,7 +38,7 @@ interface TypedData {
   message: Record<string, any>;
 }
 
-interface WatchAssetOptions {
+export interface WatchAssetOptions {
   address: string;
   symbol?: string;
   decimals?: number;
@@ -46,14 +46,14 @@ interface WatchAssetOptions {
   tokenId?: string;
 }
 
-interface Call {
+export interface Call {
   to?: Address;
   data?: HexString;
   value?: HexString;
   capabilities?: Record<string, any>;
 }
 
-interface SendCallsParameter {
+export interface SendCallsParameter {
   version: string;
   id?: string;
   from: Address;
@@ -63,12 +63,12 @@ interface SendCallsParameter {
   capabilities?: Record<string, any>;
 }
 
-interface BatchResult {
+export interface BatchResult {
   id: string;
   capabilities?: Record<string, any>;
 }
 
-interface BatchStatus {
+export interface BatchStatus {
   version: string;
   id: string;
   chainId: HexString;
@@ -90,7 +90,7 @@ interface BatchStatus {
   capabilities?: Record<string, any>;
 }
 
-interface Transaction {
+export interface Transaction {
   from: Address;
   to?: Address;
   gas?: HexString;
@@ -108,14 +108,14 @@ interface Transaction {
   chainId?: HexString;
 }
 
-interface Filter {
+export interface Filter {
   fromBlock?: HexString;
   toBlock?: HexString;
   address?: Address | Address[];
   topics?: Array<HexString | HexString[] | null>;
 }
 
-interface Log {
+export interface Log {
   removed?: boolean;
   logIndex?: HexString;
   transactionIndex?: HexString;
@@ -127,7 +127,7 @@ interface Log {
   topics: HexString[];
 }
 
-interface Block {
+export interface Block {
   number: HexString;
   hash: Hash32;
   parentHash: Hash32;
@@ -161,7 +161,7 @@ interface Block {
   mixHash?: Hash32;
 }
 
-interface TransactionInfo {
+export interface TransactionInfo {
   blockHash: Hash32;
   blockNumber: HexString;
   from: Address;
@@ -187,7 +187,7 @@ interface TransactionInfo {
   yParity?: HexString;
 }
 
-interface TransactionReceipt {
+export interface TransactionReceipt {
   transactionHash: Hash32;
   transactionIndex: HexString;
   blockHash: Hash32;
@@ -206,7 +206,7 @@ interface TransactionReceipt {
   blobGasPrice?: HexString;
 }
 
-interface FeeHistory {
+export interface FeeHistory {
   oldestBlock: HexString;
   baseFeePerGas: HexString[];
   baseFeePerBlobGas?: HexString[];
@@ -215,7 +215,7 @@ interface FeeHistory {
   reward?: HexString[][];
 }
 
-interface AccountProof {
+export interface AccountProof {
   address: Address;
   accountProof: HexString[];
   balance: HexString;
@@ -229,7 +229,7 @@ interface AccountProof {
   }>;
 }
 
-type SyncingStatus =
+export type SyncingStatus =
   | boolean
   | {
       startingBlock: HexString;
