@@ -53,9 +53,8 @@ expectType<{ signature: string }>(
     request: {
       method: 'signMessage',
       params: {
-        chainId: 'tron:728126428',
         address: 'TJRabPrwbZy45sbavfcjinPJC18kjpRTv8',
-        message: 'hello world',
+        message: 'aGVsbG8gd29ybGQ=',
       },
     },
   }),
