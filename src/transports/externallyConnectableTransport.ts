@@ -2,7 +2,7 @@ import { detectMetamaskExtensionId } from '../helpers/metamaskExtensionId';
 import { getUniqueId, withTimeout } from '../helpers/utils';
 import { TransportError, TransportTimeoutError } from '../types/errors';
 import type { Transport, TransportResponse } from '../types/transport';
-import { DEFAULT_REQUEST_TIMEOUT, REQUEST_CAIP } from './constants';
+import { DEFAULT_REQUEST_TIMEOUT, DEFAULT_WARMUP_TIMEOUT, REQUEST_CAIP } from './constants';
 
 /**
  * Creates a transport that communicates with the MetaMask extension via Chrome's externally_connectable API
@@ -23,10 +23,10 @@ import { DEFAULT_REQUEST_TIMEOUT, REQUEST_CAIP } from './constants';
  * ```
  */
 export function getExternallyConnectableTransport(
-  params: { extensionId?: string; defaultTimeout?: number } = {},
+  params: { extensionId?: string; defaultTimeout?: number; warmupTimeout?: number } = {},
 ): Transport {
   let { extensionId } = params;
-  const { defaultTimeout = DEFAULT_REQUEST_TIMEOUT } = params;
+  const { defaultTimeout = DEFAULT_REQUEST_TIMEOUT, warmupTimeout = DEFAULT_WARMUP_TIMEOUT } = params;
   let chromePort: chrome.runtime.Port | undefined;
   let requestId = getUniqueId();
   const pendingRequests = new Map<number, (value: any) => void>();
@@ -74,6 +74,7 @@ export function getExternallyConnectableTransport(
   }
 
   return {
+    warmupTimeout,
     connect: async () => {
       try {
         if (!extensionId) {

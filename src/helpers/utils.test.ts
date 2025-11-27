@@ -106,5 +106,18 @@ describe('utils', () => {
         'custom',
       );
     });
+
+    it('should not apply timeout when timeoutMs is -1', async () => {
+      const slowPromise = new Promise<string>((resolve) => {
+        setTimeout(() => resolve('completed'), 100);
+      });
+      const result = await withTimeout(slowPromise, -1);
+      expect(result).toBe('completed');
+    });
+
+    it('should handle rejection when timeoutMs is -1', async () => {
+      const failingPromise = Promise.reject(new Error('failed'));
+      await expect(withTimeout(failingPromise, -1)).rejects.toThrow('failed');
+    });
   });
 });
