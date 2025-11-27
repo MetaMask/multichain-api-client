@@ -1,5 +1,6 @@
 import { expectError, expectType } from 'tsd';
 import { getMultichainClient } from '../src/index';
+import type { Signature } from '../src/types/scopes/tron.types';
 import { getMockTransport } from './mocks';
 
 const client = getMultichainClient({ transport: getMockTransport() });
@@ -47,7 +48,7 @@ expectType<`0x${string}`>(
 );
 
 // Basic tron signMessage call with correct scope and parameters
-expectType<{ signature: string }>(
+expectType<{ signature: Signature }>(
   await client.invokeMethod({
     scope: 'tron:728126428',
     request: {
