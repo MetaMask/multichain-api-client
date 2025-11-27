@@ -1,5 +1,4 @@
 import type { RpcMethod } from '.';
-import type { CaipChainId } from '../session';
 
 /**
  * A Base64-encoded message string.
@@ -75,14 +74,12 @@ export type SignMessageMethod = RpcMethod<
  * Signs a Tron transaction.
  * The transaction must be provided as a base64-encoded serialized transaction string.
  *
- * @param scope - CAIP-2 chain ID identifying the Tron network (e.g., "tron:0x2b6653dc")
  * @param address - The Tron address that will sign the transaction
  * @param transaction - The Tron transaction in serialized base64 format
  * @returns An object containing the hexadecimal signature of the transaction
  */
 export type SignTransactionMethod = RpcMethod<
   {
-    scope: CaipChainId;
     address: TronAddress;
     transaction: Base64Transaction;
   },
