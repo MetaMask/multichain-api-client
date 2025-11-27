@@ -1,7 +1,13 @@
 import { getUniqueId, withTimeout } from '../helpers/utils';
 import { TransportError, TransportTimeoutError } from '../types/errors';
 import type { Transport, TransportResponse } from '../types/transport';
-import { CONTENT_SCRIPT, DEFAULT_REQUEST_TIMEOUT, INPAGE, MULTICHAIN_SUBSTREAM_NAME } from './constants';
+import {
+  CONTENT_SCRIPT,
+  DEFAULT_REQUEST_TIMEOUT,
+  DEFAULT_WARMUP_TIMEOUT,
+  INPAGE,
+  MULTICHAIN_SUBSTREAM_NAME,
+} from './constants';
 
 /**
  * Creates a transport that communicates with the MetaMask extension via window.postMessage
@@ -16,8 +22,10 @@ import { CONTENT_SCRIPT, DEFAULT_REQUEST_TIMEOUT, INPAGE, MULTICHAIN_SUBSTREAM_N
  * const result = await transport.request({ method: 'eth_getBalance', params: ['0x123', 'latest'] });
  * ```
  */
-export function getWindowPostMessageTransport(params: { defaultTimeout?: number } = {}): Transport {
-  const { defaultTimeout = DEFAULT_REQUEST_TIMEOUT } = params;
+export function getWindowPostMessageTransport(
+  params: { defaultTimeout?: number; warmupTimeout?: number } = {},
+): Transport {
+  const { defaultTimeout = DEFAULT_REQUEST_TIMEOUT, warmupTimeout = DEFAULT_WARMUP_TIMEOUT } = params;
   let messageListener: ((event: MessageEvent) => void) | null = null;
   const pendingRequests: Map<number, (value: any) => void> = new Map();
   let requestId = getUniqueId();
@@ -77,6 +85,7 @@ export function getWindowPostMessageTransport(params: { defaultTimeout?: number 
   const isConnected = () => Boolean(messageListener);
 
   return {
+    warmupTimeout,
     connect: async () => {
       // If we're already connected, reconnect
       if (isConnected()) {

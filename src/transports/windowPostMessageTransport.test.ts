@@ -350,4 +350,18 @@ describe('WindowPostMessageTransport', () => {
     const result = await secondPromise;
     expect(result).toEqual({ id: MOCK_INITIAL_REQUEST_ID + 1, result: mockSession });
   });
+
+  it('should expose warmupTimeout when provided', () => {
+    const transportWithWarmup = getWindowPostMessageTransport({ warmupTimeout: 500 });
+    expect(transportWithWarmup.warmupTimeout).toBe(500);
+  });
+
+  it('should have default warmupTimeout of 200ms when not provided', () => {
+    expect(transport.warmupTimeout).toBe(200);
+  });
+
+  it('should support -1 as warmupTimeout to disable timeout', () => {
+    const transportWithNoTimeout = getWindowPostMessageTransport({ warmupTimeout: -1 });
+    expect(transportWithNoTimeout.warmupTimeout).toBe(-1);
+  });
 });
