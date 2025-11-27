@@ -27,7 +27,7 @@ describe('getMultichainClient', () => {
 
     expect(result).toEqual(mockSession);
     // First call from initialization
-    expect(mockTransport.request).toHaveBeenNthCalledWith(1, { method: 'wallet_getSession' });
+    expect(mockTransport.request).toHaveBeenNthCalledWith(1, { method: 'wallet_getSession' }, { timeout: 1_000 });
     // Second call is the createSession request including options object
     expect(mockTransport.request).toHaveBeenNthCalledWith(
       2,
@@ -44,9 +44,14 @@ describe('getMultichainClient', () => {
     const result = await client.getSession();
 
     expect(result).toEqual(mockSession);
-    expect(mockTransport.request).toHaveBeenCalledWith({
-      method: 'wallet_getSession',
-    });
+    // First call from initialization with warmupTimeout
+    expect(mockTransport.request).toHaveBeenNthCalledWith(1, { method: 'wallet_getSession' }, { timeout: 1_000 });
+    // Second call from explicit getSession()
+    expect(mockTransport.request).toHaveBeenNthCalledWith(
+      2,
+      { method: 'wallet_getSession', params: undefined },
+      { timeout: undefined },
+    );
   });
 
   describe('revokeSession', () => {
@@ -85,7 +90,7 @@ describe('getMultichainClient', () => {
       },
     });
     expect(signAndSendResult).toEqual({ signature: 'mock-signature' });
-    expect(mockTransport.request).toHaveBeenNthCalledWith(1, { method: 'wallet_getSession' });
+    expect(mockTransport.request).toHaveBeenNthCalledWith(1, { method: 'wallet_getSession' }, { timeout: 1_000 });
     expect(mockTransport.request).toHaveBeenNthCalledWith(
       2,
       {
