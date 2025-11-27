@@ -52,7 +52,7 @@ export type TronAddress = `T${string}`;
 /**
  * A signature.
  */
-export type Signature = `${string}`;
+export type Signature = `0x${string}`;
 
 /**
  * Signs a plain text message.
