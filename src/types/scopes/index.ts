@@ -1,6 +1,7 @@
 import type { Bip122Rpc } from './bip122.types';
 import type { Eip155Rpc } from './eip155.types';
 import type { SolanaRpc } from './solana.types';
+import type { TronRpc } from './tron.types';
 
 export type RpcApi = Record<
   string,
@@ -34,4 +35,5 @@ export type DefaultRpcApi = {
   eip155: Eip155Rpc;
   solana: SolanaRpc;
   bip122: Bip122Rpc;
+  tron: TronRpc;
 };
