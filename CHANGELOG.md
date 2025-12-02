@@ -9,10 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.10.0]
 
-### Uncategorized
+### Added
 
 - feat: add tron scope types ([#83](https://github.com/MetaMask/multichain-api-client/pull/83))
-- build(deps): bump mdast-util-to-hast ([#88](https://github.com/MetaMask/multichain-api-client/pull/88))
+
+### Fixed
+
 - fix: warmup timeout ([#87](https://github.com/MetaMask/multichain-api-client/pull/87))
 
 ## [0.9.0]
