@@ -32,13 +32,47 @@ const result = await client.invokeMethod({
 await client.revokeSession();
 ```
 
-### Configuring Transport Timeout
+### Configuring Transport Timeouts
 
-You can configure a default timeout (in milliseconds) for all requests made through the transport by passing the `defaultTimeout` option to `getDefaultTransport`:
+#### Default Request Timeout
+
+By default, the transport has **no timeout** (`-1`) for requests. This is because most operations require user interaction (e.g., confirming transactions in the MetaMask extension), and we don't want to prematurely cancel requests while the user is reviewing them.
+
+However, you can configure a default timeout (in milliseconds) for all requests by passing the `defaultTimeout` option:
 
 ```typescript
-const transport = getDefaultTransport({ defaultTimeout: 5000 }); // 5 seconds timeout for all requests
+const transport = getDefaultTransport({ defaultTimeout: 30000 }); // 30 seconds timeout for all requests
 const client = getMultichainClient({ transport });
+```
+
+To explicitly disable timeouts (wait indefinitely), set the timeout to `-1`:
+
+```typescript
+const transport = getDefaultTransport({ defaultTimeout: -1 }); // No timeout (default behavior)
+```
+
+#### Warmup Timeout
+
+The `warmupTimeout` is a special timeout used specifically for the **first request** sent immediately after the transport establishes its connection. This is useful because:
+
+- Some transports need a brief moment to fully initialize before they can reliably process requests
+- The initial "warmup" request is typically a lightweight check (e.g., `wallet_getSession`) that doesn't require user interaction
+- This timeout is usually much shorter than the regular request timeout
+
+```typescript
+const transport = getDefaultTransport({
+  warmupTimeout: 200,  // 200 ms for the initial warmup request
+  defaultTimeout: -1    // No timeout for subsequent requests (user interactions)
+});
+const client = getMultichainClient({ transport });
+```
+
+**Key differences between `warmupTimeout` and `defaultTimeout`:**
+
+| Property         | Purpose                       | Typical Value     | When Applied                             |
+| ---------------- | ----------------------------- | ----------------- | ---------------------------------------- |
+| `warmupTimeout`  | Initial connection validation | 200 ms            | Only the first request after `connect()` |
+| `defaultTimeout` | Regular request operations    | `-1` (no timeout) | All subsequent requests                  |
 ```
 
 ## Extending RPC Types
@@ -103,6 +137,7 @@ A transport must implement the following interface:
 
 ```typescript
 type Transport = {
+  warmupTimeout?: number;  // Optional timeout for the initial warmup request
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
   isConnected: () => boolean;
@@ -121,31 +156,50 @@ import { TransportError, TransportTimeoutError } from '@metamask/multichain-api-
 import type { Transport, TransportRequest, TransportResponse } from '@metamask/multichain-api-client';
 
 type CustomTransportOptions = {
-  defaultTimeout?: number; // ms
+  defaultTimeout?: number;  // Default timeout for all requests (use -1 for no timeout)
+  warmupTimeout?: number;   // Optional timeout for the initial warmup request
 };
 
 export function getCustomTransport(options: CustomTransportOptions = {}): Transport {
-  const { defaultTimeout = 5000 } = options;
+  const { defaultTimeout = -1, warmupTimeout } = options; // Default: no timeout
 
   return {
+    warmupTimeout,  // Expose warmupTimeout for the client to use
     connect: async () => { ... },
     disconnect: async () => { ... },
     isConnected: () => { ...},
-    request: async <TRequest extends TransportRequest, TResponse extends TransportResponse>( request: TRequest, { timeout }: { timeout?: number } = {}): Promise<TResponse> => { ... },
+    request: async <TRequest extends TransportRequest, TResponse extends TransportResponse>(
+      request: TRequest,
+      { timeout = defaultTimeout }: { timeout?: number } = {}
+    ): Promise<TResponse> => {
+      // If timeout is -1, don't apply any timeout
+      if (timeout === -1) {
+        return performRequest(request); // Your actual request logic
+      }
+
+      // Otherwise, wrap the request with a timeout
+      return withTimeout(
+        performRequest(request),
+        timeout,
+        () => new TransportTimeoutError()
+      );
+    },
     onNotification: (callback: (data: unknown) => void) => { ... },
   };
 }
 
-// Usage
-const transport = getCustomTransport({ defaultTimeout: 8000 });
+// Usage examples
+const transport = getCustomTransport({
+  warmupTimeout: 500,  // 500 ms for initial connection check
+  defaultTimeout: -1    // No timeout for user interactions (default)
+});
 const client = getMultichainClient({ transport });
 
-// Per-request override
+// Per-request timeout override
 await client.invokeMethod({
   scope: 'eip155:1',
   request: { method: 'eth_chainId', params: [] },
-  // The transport's request implementation can expose a timeout override
-  { timeout: 10000  // 10 seconds timeout for this request only
+  { timeout: 10000 }  // 10 seconds timeout for this specific request
 });
 ```
 

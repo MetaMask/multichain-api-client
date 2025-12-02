@@ -9,6 +9,18 @@
  */
 export type Transport = {
   /**
+   * Timeout used for the initial request sent right after the transport
+   * establishes its connection.
+   *
+   * This value represents the maximum time allowed for the first lightweight
+   * "warm-up" request to complete (e.g., a readiness or session check). It is
+   * typically shorter or different from the regular request timeout, as some
+   * transports require a distinct delay before they can reliably process the
+   * initial request.
+   */
+  warmupTimeout?: number;
+
+  /**
    * Establishes a connection to the wallet
    *
    * @returns A promise that resolves to true if the connection was successful, false otherwise
