@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- fix: make sure `getUniqueId` is called on each `windowPostMessageTransport` request to avoid `RPC request with id already seen.` error on extension when using firefox ([#91](https://github.com/MetaMask/multichain-api-client/pull/91))
+
 ## [0.10.0]
 
 ### Added
