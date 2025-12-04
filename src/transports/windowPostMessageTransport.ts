@@ -28,7 +28,6 @@ export function getWindowPostMessageTransport(
   const { defaultTimeout = DEFAULT_REQUEST_TIMEOUT, warmupTimeout = DEFAULT_WARMUP_TIMEOUT } = params;
   let messageListener: ((event: MessageEvent) => void) | null = null;
   const pendingRequests: Map<number, (value: any) => void> = new Map();
-  let requestId = getUniqueId();
   /**
    * Storing notification callbacks.
    * If we detect a "notification" (a message without an id) coming from the extension, we'll call each callback in here.
@@ -115,7 +114,7 @@ export function getWindowPostMessageTransport(
         throw new TransportError('Transport not connected');
       }
 
-      const id = requestId++;
+      const id = getUniqueId();
       const request = {
         jsonrpc: '2.0' as const,
         id,
