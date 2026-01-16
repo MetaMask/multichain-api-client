@@ -38,3 +38,4 @@ export type * from './types/session';
 export type * from './types/multichainApi';
 export type * from './types/scopes';
 export * from './types/errors';
+export { isMetamaskInstalled } from './helpers/metamask';

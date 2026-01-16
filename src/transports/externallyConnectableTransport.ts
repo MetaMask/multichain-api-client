@@ -1,4 +1,4 @@
-import { detectMetamaskExtensionId } from '../helpers/metamaskExtensionId';
+import { detectMetamaskExtensionId } from '../helpers/metamask';
 import { getUniqueId, withTimeout } from '../helpers/utils';
 import { TransportError, TransportTimeoutError } from '../types/errors';
 import type { Transport, TransportResponse } from '../types/transport';

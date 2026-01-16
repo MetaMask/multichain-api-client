@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { type MockPort, mockSession } from '../../tests/mocks';
-import * as metamaskExtensionId from '../helpers/metamaskExtensionId';
+import * as metamaskHelper from '../helpers/metamask';
 import * as utils from '../helpers/utils';
 import { TransportError } from '../types/errors';
 import { getExternallyConnectableTransport } from './externallyConnectableTransport';
@@ -60,7 +60,7 @@ describe('ExternallyConnectableTransport', () => {
   });
 
   it('should fetch extension id when not provided', async () => {
-    const detectSpy = vi.spyOn(metamaskExtensionId, 'detectMetamaskExtensionId').mockResolvedValue(testExtensionId);
+    const detectSpy = vi.spyOn(metamaskHelper, 'detectMetamaskExtensionId').mockResolvedValue(testExtensionId);
 
     const newTransport = getExternallyConnectableTransport({});
     await newTransport.connect();
