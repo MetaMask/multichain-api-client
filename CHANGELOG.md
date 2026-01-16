@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.10.2]
 
-### Uncategorized
+### Added
 
 - feat: add MetaMask detection functionality ([#93](https://github.com/MetaMask/multichain-api-client/pull/93))
 
