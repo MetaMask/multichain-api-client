@@ -84,7 +84,7 @@ declare global {
 export async function isMetamaskInstalled({ timeout = 2000 }: { timeout?: number } = {}): Promise<boolean> {
   return new Promise((resolve) => {
     const handleEip6963Announcement = (event: EIP6963AnnounceProviderEvent) => {
-      if (event.detail.info.rdns === 'io.metamask') {
+      if (event.detail.info.rdns.includes('io.metamask')) {
         window.removeEventListener('eip6963:announceProvider', handleEip6963Announcement);
         clearTimeout(timeoutId);
         resolve(true);
