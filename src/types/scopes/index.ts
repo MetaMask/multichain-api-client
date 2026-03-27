@@ -37,3 +37,8 @@ export type DefaultRpcApi = {
   bip122: Bip122Rpc;
   tron: TronRpc;
 };
+
+export type * as EIP155Scope from './eip155.types';
+export type * as SolanaScope from './solana.types';
+export type * as BIP122Scope from './bip122.types';
+export type * as TronScope from './tron.types';
