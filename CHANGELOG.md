@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- feat: re-export per-scope types (`bip122`, `eip155`, `solana`, `tron`) from the package root so consumers can import named types like `TronAddress`, `Eip155Rpc`, etc. directly instead of going through `MethodParams<DefaultRpcApi, ...>`
+
 ## [0.11.0]
 
 ### Added
