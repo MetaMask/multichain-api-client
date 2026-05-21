@@ -1,6 +1,7 @@
 import type { Bip122Rpc } from './bip122.types';
 import type { Eip155Rpc } from './eip155.types';
 import type { SolanaRpc } from './solana.types';
+import type { StellarRpc } from './stellar.types';
 import type { TronRpc } from './tron.types';
 
 export type RpcApi = Record<
@@ -36,9 +37,11 @@ export type DefaultRpcApi = {
   solana: SolanaRpc;
   bip122: Bip122Rpc;
   tron: TronRpc;
+  stellar: StellarRpc;
 };
 
 export type * as EIP155Scope from './eip155.types';
 export type * as SolanaScope from './solana.types';
 export type * as BIP122Scope from './bip122.types';
 export type * as TronScope from './tron.types';
+export type * as StellarScope from './stellar.types';

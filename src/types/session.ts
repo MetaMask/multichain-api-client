@@ -12,6 +12,7 @@ export type CaipAccountId = `${string}:${string}:${string}`;
  *  - `eip155:1`
  *  - `solana:mainnet`
  *  - `tron:728126428`
+ *  - `stellar:pubnet`
  */
 export type CaipChainId = `${string}:${string}`;
 
