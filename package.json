@@ -48,7 +48,7 @@
     "test:watch": "vitest --watch"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "0.17.4",
+    "@arethetypeswrong/cli": "0.18.2",
     "@biomejs/biome": "1.9.4",
     "@lavamoat/allow-scripts": "^3.0.4",
     "@lavamoat/preinstall-always-fail": "^2.0.0",
