@@ -1,6 +1,7 @@
 import { expectError, expectType } from 'tsd';
 import { getMultichainClient } from '../src/index';
 import type { Signature } from '../src/types/scopes/tron.types';
+import type { StellarAddress } from '../src/types/scopes/stellar.types';
 import { getMockTransport } from './mocks';
 
 const client = getMultichainClient({ transport: getMockTransport() });
@@ -56,6 +57,19 @@ expectType<{ signature: Signature }>(
       params: {
         address: 'TJRabPrwbZy45sbavfcjinPJC18kjpRTv8',
         message: 'aGVsbG8gd29ybGQ=',
+      },
+    },
+  }),
+);
+
+// Basic stellar signMessage call with correct scope and parameters
+expectType<{ signedMessage: string; signerAddress: StellarAddress }>(
+  await client.invokeMethod({
+    scope: 'stellar:pubnet',
+    request: {
+      method: 'signMessage',
+      params: {
+        message: 'Hello Stellar',
       },
     },
   }),
@@ -122,6 +136,19 @@ expectError(
       params: {
         address: '1234567890',
         message: 'message',
+      },
+    },
+  }),
+);
+
+// Invalid stellar parameter structure
+expectError(
+  await client.invokeMethod({
+    scope: 'stellar:pubnet',
+    request: {
+      method: 'signMessage',
+      params: {
+        xdr: 'not-a-message-param',
       },
     },
   }),
