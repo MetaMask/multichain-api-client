@@ -9,15 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.12.0]
 
-### Uncategorized
+### Added
 
-- Revert "0.12.0"
-- Revert "chore: changelog"
-- chore: changelog
-- 0.12.0
-- fix: lint ([#103](https://github.com/MetaMask/multichain-api-client/pull/103))
 - chore: added stellar types, mock tests and exports ([#102](https://github.com/MetaMask/multichain-api-client/pull/102))
-- feat: Export scopes types
+
+### Fixed
+
+- fix: lint ([#103](https://github.com/MetaMask/multichain-api-client/pull/103))
 
 ## [0.11.0]
 
