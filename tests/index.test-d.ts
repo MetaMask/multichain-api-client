@@ -1,7 +1,7 @@
 import { expectError, expectType } from 'tsd';
 import { getMultichainClient } from '../src/index';
-import type { Signature } from '../src/types/scopes/tron.types';
 import type { StellarAddress } from '../src/types/scopes/stellar.types';
+import type { Signature } from '../src/types/scopes/tron.types';
 import { getMockTransport } from './mocks';
 
 const client = getMultichainClient({ transport: getMockTransport() });
