@@ -43,8 +43,9 @@
     "lint:biome": "biome check",
     "lint:fix": "yarn lint:biome --fix && yarn format:fix && yarn lint:constraints --fix && yarn lint:dependencies && yarn lint:changelog",
     "prepack": "./scripts/prepack.sh",
-    "test": "vitest && attw --pack && yarn test:types",
+    "test": "vitest",
     "test:types": "tsd  --files ./tests/index.test-d.ts",
+    "test:attw": "attw --pack",
     "test:watch": "vitest --watch"
   },
   "devDependencies": {
